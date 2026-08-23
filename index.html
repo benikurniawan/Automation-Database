@@ -239,123 +239,199 @@
             olmContainer.appendChild(card);
         });
 
-        function exportData() {
-            const dateStr = document.getElementById("insp-date").value || new Date().toISOString().slice(0, 10);
-            const shift = document.getElementById("insp-shift").value;
-            const inspector = document.getElementById("insp-name").value || "-";
+function exportData() {
+    const dateStr = document.getElementById("insp-date").value || new Date().toISOString().slice(0, 10);
+    const shift = document.getElementById("insp-shift").value;
+    const inspector = document.getElementById("insp-name").value || "-";
 
-            let sheetData = [];
+    // 1. Inisialisasi Workbook & Sheet
+    const wb = XLSX.utils.book_new();
+    const ws = {};
 
-            // 1. DATA METADATA
-            sheetData.push(["DAILY INSPECTION CHECKLIST"]);
-            sheetData.push(["Equipment & Environment Monitoring All Shifts"]);
-            sheetData.push([`Date: ${dateStr}`, "", "", "", `Shift: ${shift}`, "", "", "", `Inspector: ${inspector}`]);
-            sheetData.push([]);
+    // Helper Fungsi Bikin Sel dengan Style
+    const setCell = (r, c, val, style = {}) => {
+        const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
+        ws[cellRef] = { v: val, t: typeof val === 'number' ? 'n' : 's', s: style };
+    };
 
-            // 2. TABEL CONTROLLERS
-            sheetData.push(["=== CONTROLLERS SYSTEM INSPECTION ==="]);
-            sheetData.push([
-                "Controller", "Status", "Active Fault", "HW Faults", "CPU Load", "CPU Temp",
-                "Role of Activity", "Functionality of redundant node", "System bus connection state",
-                "System bus connection state of the redundant machine", "Update bus connection to redundant node",
-                "Operational number of own field bus connections", "Operational numbers of redundant field bus connections",
-                "FBC02 status", "FBC03 status"
-            ]);
+    // Style Definitions
+    const fontTitle = { name: "Calibri", sz: 14, bold: true, color: { rgb: "1F2937" } };
+    const fontMeta = { name: "Calibri", sz: 10, bold: true, color: { rgb: "374151" } };
+    const fontHeaderSec = { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFF" } };
+    const fontHeaderVert = { name: "Calibri", sz: 9, bold: true, color: { rgb: "FFFFFF" } };
+    const fontHeaderNorm = { name: "Calibri", sz: 10, bold: true, color: { rgb: "FFFFFF" } };
+    const fontData = { name: "Calibri", sz: 10, color: { rgb: "111827" } };
+    const fontDataBold = { name: "Calibri", sz: 10, bold: true, color: { rgb: "111827" } };
 
-            controllers.forEach(ctrl => {
-                const status = document.getElementById(`${ctrl}-status`).value;
-                const actFault = document.getElementById(`${ctrl}-act-fault`).value || 'None';
-                const hwFault = document.getElementById(`${ctrl}-hw-fault`).value || 'None';
-                const cpuLoad = document.getElementById(`${ctrl}-cpu-load`).value || '0';
-                const cpuTemp = document.getElementById(`${ctrl}-cpu-temp`).value || '0';
-                const role = document.getElementById(`${ctrl}-role`).value;
-                const funcRed = document.getElementById(`${ctrl}-func-redundant`).value;
-                const sysBus = document.getElementById(`${ctrl}-sysbus-state`).value;
-                const sysBusRed = document.getElementById(`${ctrl}-sysbus-red-state`).value;
-                const updateBus = document.getElementById(`${ctrl}-update-bus`).value;
-                const ownFieldbus = document.getElementById(`${ctrl}-own-fieldbus`).value || '0';
-                const redFieldbus = document.getElementById(`${ctrl}-red-fieldbus`).value || '0';
-                const fbc02 = document.getElementById(`${ctrl}-fbc02`).value;
-                const fbc03 = document.getElementById(`${ctrl}-fbc03`).value;
+    const fillCtrlHeader = { fgColor: { rgb: "1E3A8A" } }; // Dark Blue
+    const fillOlmHeader = { fgColor: { rgb: "4C1D95" } };  // Dark Purple
+    const fillEnvHeader = { fgColor: { rgb: "065F46" } };  // Dark Green
+    const fillSeparator = { fgColor: { rgb: "9CA3AF" } };  // Grey Separator
 
-                sheetData.push([
-                    ctrl, status, actFault, hwFault, cpuLoad, cpuTemp, role, funcRed,
-                    sysBus, sysBusRed, updateBus, ownFieldbus, redFieldbus, fbc02, fbc03
-                ]);
-            });
+    const thinBorder = {
+        top: { style: "thin", color: { rgb: "E5E7EB" } },
+        bottom: { style: "thin", color: { rgb: "E5E7EB" } },
+        left: { style: "thin", color: { rgb: "E5E7EB" } },
+        right: { style: "thin", color: { rgb: "E5E7EB" } }
+    };
 
-            // 3. TABEL PROFIBUS OLM
-            sheetData.push([]);
-            sheetData.push(["=== PROFIBUS OLM FAULTS INSPECTION ==="]);
-            sheetData.push(["OLM Node", "Status"]);
+    // --- METADATA HEADER ---
+    setCell(0, 0, "AUTOMATION DAILY CHECKLIST", { font: fontTitle });
+    setCell(1, 0, "Equipment & Environment Monitoring System — FORM-CHK-001 REV 02", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "6B7280" } } });
 
-            olmNodes.forEach(olm => {
-                const olmStatus = document.getElementById(`olm-${olm}`).value;
-                sheetData.push([olm, olmStatus]);
-            });
+    setCell(3, 0, "Date:", { font: fontMeta });
+    setCell(3, 1, dateStr, { font: fontData });
+    setCell(3, 4, "Shift:", { font: fontMeta });
+    setCell(3, 5, shift, { font: fontData });
+    setCell(3, 8, "Inspector:", { font: fontMeta });
+    setCell(3, 9, inspector, { font: fontData });
 
-            // 4. ENVIRONMENT & POWER SYSTEM
-            sheetData.push([]);
-            sheetData.push(["=== ENVIRONMENT & POWER SYSTEM ==="]);
-            sheetData.push(["Parameter", "Value"]);
-            sheetData.push(["Room Temperature (°C)", document.getElementById("env-temp").value || '0']);
-            sheetData.push(["Relative Humidity (%)", document.getElementById("env-rh").value || '0']);
-            sheetData.push(["Room Cleanliness", document.getElementById("env-clean").value]);
-            sheetData.push(["UPS Status", document.getElementById("ups-status").value]);
-            sheetData.push(["Cabinet Condition", document.getElementById("cabinet-status").value]);
+    // --- BARIS 5: HEADER SECTION ---
+    setCell(5, 0, "CONTROLLERS SYSTEM INSPECTION", { font: fontHeaderSec, fill: fillCtrlHeader, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
+    setCell(5, 15, "", { fill: fillSeparator }); // Separator header
+    setCell(5, 16, "PROFIBUS OLM FAULTS", { font: fontHeaderSec, fill: fillOlmHeader, alignment: { horizontal: "center", vertical: "center" } });
 
-            const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    // --- BARIS 6: HEADER TABEL CONTROLLER & OLM ---
+    const ctrlHeaders = [
+        "Controller", "Status", "Active Fault", "HW Faults", "CPU Load (%)", "CPU Temp (°C)",
+        "Role of Activity", "Funct. of Redundant Node", "Sys. Bus Conn. State",
+        "Sys. Bus Conn. State (Red. Machine)", "Update Bus Conn. to Red. Node",
+        "Oper. Numb. Own Field Bus", "Oper. Numb. Red. Field Bus", "FBC02 Status", "FBC03 Status"
+    ];
 
-            worksheet['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 14 } },
-                { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
-                { s: { r: 2, c: 4 }, e: { r: 2, c: 8 } },
-                { s: { r: 2, c: 9 }, e: { r: 2, c: 12 } },
-                { s: { r: 4, c: 0 }, e: { r: 4, c: 14 } }
+    ctrlHeaders.forEach((text, colIdx) => {
+        setCell(6, colIdx, text, {
+            font: fontHeaderVert,
+            fill: fillCtrlHeader,
+            alignment: { horizontal: "left", vertical: "center", textRotation: 90, wrapText: true }
+        });
+    });
+
+    // Kolom Separator Grey
+    setCell(6, 15, "", { fill: fillSeparator });
+
+    // Header OLM
+    setCell(6, 16, "OLM Node", { font: fontHeaderNorm, fill: fillOlmHeader, alignment: { horizontal: "center", vertical: "center" } });
+    setCell(6, 17, "Status", { font: fontHeaderNorm, fill: fillOlmHeader, alignment: { horizontal: "center", vertical: "center" } });
+
+    // --- ISI DATA TABEL (SIDE BY SIDE) ---
+    const maxRows = Math.max(controllers.length, olmNodes.length);
+
+    for (let i = 0; i < maxRows; i++) {
+        const r = 7 + i;
+
+        // Data Controller
+        if (i < controllers.length) {
+            const ctrl = controllers[i];
+            const cVals = [
+                ctrl,
+                document.getElementById(`${ctrl}-status`).value,
+                document.getElementById(`${ctrl}-act-fault`).value || 'None',
+                document.getElementById(`${ctrl}-hw-fault`).value || 'None',
+                Number(document.getElementById(`${ctrl}-cpu-load`).value) || 0,
+                Number(document.getElementById(`${ctrl}-cpu-temp`).value) || 0,
+                document.getElementById(`${ctrl}-role`).value,
+                document.getElementById(`${ctrl}-func-redundant`).value,
+                document.getElementById(`${ctrl}-sysbus-state`).value,
+                document.getElementById(`${ctrl}-sysbus-red-state`).value,
+                document.getElementById(`${ctrl}-update-bus`).value,
+                Number(document.getElementById(`${ctrl}-own-fieldbus`).value) || 0,
+                Number(document.getElementById(`${ctrl}-red-fieldbus`).value) || 0,
+                document.getElementById(`${ctrl}-fbc02`).value,
+                document.getElementById(`${ctrl}-fbc03`).value
             ];
-          
-            const leftStyle = {
-                alignment: {
-                    horizontal: "center",
-                    vertical: "center"
-                },
-                font: {
-                    bold: true
-                }
-            };
 
-            const verticalHeaderLeftStyle = {
-                alignment: {
-                    horizontal: "left",
-                    vertical: "center",
-                    textRotation: 90,
-                    wrapText: true
-                },
-                font: {
-                    bold: true
-                }
-            };
-
-            if (worksheet['A1']) worksheet['A1'].s = { ...leftStyle, font: { bold: true, size: 14 } };
-            if (worksheet['A2']) worksheet['A2'].s = leftStyle;
-            if (worksheet['A5']) worksheet['A5'].s = leftStyle;
-
-            const totalCols = 15;
-            for (let col = 0; col < totalCols; col++) {
-                const cellRef = XLSX.utils.encode_cell({ r: 5, c: col });
-                if (worksheet[cellRef]) {
-                    worksheet[cellRef].s = verticalHeaderLeftStyle;
-                }
-            }
-
-            if (!worksheet['!rows']) worksheet['!rows'] = [];
-            worksheet['!rows'][5] = { hpt: 120 };
-
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Checklist");
-            XLSX.writeFile(workbook, `Full_Automation_Checklist_${dateStr}.xlsx`);
+            cVals.forEach((val, colIdx) => {
+                const align = [1, 6, 7, 8, 9, 10, 13, 14].includes(colIdx) ? "center" : ([4, 5, 11, 12].includes(colIdx) ? "right" : "left");
+                setCell(r, colIdx, val, {
+                    font: colIdx === 0 ? fontDataBold : fontData,
+                    border: thinBorder,
+                    alignment: { horizontal: align, vertical: "center" }
+                });
+            });
+        } else {
+            for (let c = 0; c < 15; c++) setCell(r, c, "", { border: thinBorder });
         }
+
+        // Kolom Separator Abu-abu
+        setCell(r, 15, "", { fill: fillSeparator });
+
+        // Data OLM
+        if (i < olmNodes.length) {
+            const olm = olmNodes[i];
+            const olmStatus = document.getElementById(`olm-${olm}`).value;
+
+            setCell(r, 16, olm, { font: fontDataBold, border: thinBorder, alignment: { horizontal: "left", vertical: "center" } });
+            setCell(r, 17, olmStatus, { font: fontData, border: thinBorder, alignment: { horizontal: "center", vertical: "center" } });
+        } else {
+            setCell(r, 16, "", { border: thinBorder });
+            setCell(r, 17, "", { border: thinBorder });
+        }
+    }
+
+    // --- TABEL ENVIRONMENT & POWER SYSTEM ---
+    const envStartRow = 7 + maxRows + 2;
+
+    setCell(envStartRow, 0, "ENVIRONMENT & POWER SYSTEM INSPECTION", { font: fontHeaderSec, fill: fillEnvHeader, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
+
+    setCell(envStartRow + 1, 0, "Rack Room Environment", { font: fontHeaderNorm, fill: fillEnvHeader, alignment: { horizontal: "left", vertical: "center" } });
+    setCell(envStartRow + 1, 1, "Status / Value", { font: fontHeaderNorm, fill: fillEnvHeader, alignment: { horizontal: "center", vertical: "center" } });
+    setCell(envStartRow + 1, 3, "Power System & Cabinet", { font: fontHeaderNorm, fill: fillEnvHeader, alignment: { horizontal: "left", vertical: "center" } });
+    setCell(envStartRow + 1, 4, "Status / Value", { font: fontHeaderNorm, fill: fillEnvHeader, alignment: { horizontal: "center", vertical: "center" } });
+
+    const envData1 = [
+        ["Room Temperature (°C)", Number(document.getElementById("env-temp").value) || 0],
+        ["Relative Humidity (%)", Number(document.getElementById("env-rh").value) || 0],
+        ["Room Cleanliness & Access", document.getElementById("env-clean").value]
+    ];
+
+    const envData2 = [
+        ["UPS Status", document.getElementById("ups-status").value],
+        ["Cabinet Condition", document.getElementById("cabinet-status").value]
+    ];
+
+    for (let idx = 0; idx < 3; idx++) {
+        const rEnv = envStartRow + 2 + idx;
+        if (envData1[idx]) {
+            setCell(rEnv, 0, envData1[idx][0], { font: fontData, border: thinBorder });
+            setCell(rEnv, 1, envData1[idx][1], { font: fontDataBold, border: thinBorder, alignment: { horizontal: "center" } });
+        }
+        if (envData2[idx]) {
+            setCell(rEnv, 3, envData2[idx][0], { font: fontData, border: thinBorder });
+            setCell(rEnv, 4, envData2[idx][1], { font: fontDataBold, border: thinBorder, alignment: { horizontal: "center" } });
+        }
+    }
+
+    // --- KONFIGURASI MERGE, ROW HEIGHT, & COLUMN WIDTH ---
+    ws['!merges'] = [
+        { s: { r: 5, c: 0 }, e: { r: 5, c: 14 } },  // Merge Header Controller Section
+        { s: { r: 5, c: 16 }, e: { r: 5, c: 17 } }, // Merge Header OLM Section
+        { s: { r: envStartRow, c: 0 }, e: { r: envStartRow, c: 17 } } // Merge Header Environment Section
+    ];
+
+    // Tinggi Baris (Row Heights)
+    ws['!rows'] = [];
+    ws['!rows'][5] = { hpt: 24 };  // Baris Header Seksi
+    ws['!rows'][6] = { hpt: 110 }; // Baris Header Vertikal Controller
+    ws['!rows'][envStartRow] = { hpt: 24 };
+
+    // Lebar Kolom (Column Widths)
+    ws['!cols'] = [
+        { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 14 },
+        { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+        { wch: 12 },
+        { wch: 4 },  // Kolom P: Pembatas Abu-abu (Lebar Kecil)
+        { wch: 16 }, { wch: 14 }
+    ];
+
+    // Set Ref Sheet Boundary
+    const maxExportRow = envStartRow + 5;
+    ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: maxExportRow, c: 17 } });
+
+    // Download File Excel
+    XLSX.utils.book_append_sheet(wb, ws, "Checklist");
+    XLSX.writeFile(wb, `Full_Automation_Checklist_${dateStr}.xlsx`);
+}
     </script>
 </body>
 </html>
