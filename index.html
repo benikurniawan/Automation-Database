@@ -12,18 +12,18 @@
     .custom-input { background: #0f172a; border: 1px solid #334155; color: #f8fafc; transition: all 0.2s; }
     .custom-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
     
-    /* CSS untuk Orientasi Teks Header Vertikal + Wrap Text (Multi-line) */
+    /* CSS untuk Orientasi Teks Header Vertikal + Wrap Text + Rata Kiri */
     .vertical-header {
       writing-mode: vertical-lr;
       transform: rotate(180deg);
-      white-space: normal; /* Mengizinkan teks bersambung ke bawah/samping */
+      white-space: normal; /* Mengizinkan teks bersambung ke bawah */
       word-wrap: break-word;
       height: 160px;
-      max-width: 28px; /* Menjaga kolom tetap ringkas dan memaksa teks panjang turun */
+      max-width: 28px;
       display: inline-flex;
-      align-items: center;
-      justify-content: flex-end;
-      text-align: center;
+      align-items: flex-start; /* Rata Kiri (Posisi atas setelah di-rotate) */
+      justify-content: flex-end; /* Memastikan awal teks mulai dari bawah header */
+      text-align: left; /* Teks rata kiri */
       line-height: 1.1;
     }
   </style>
@@ -324,12 +324,12 @@
                 }
             };
 
-            const verticalHeaderStyle = {
+            const verticalHeaderLeftStyle = {
                 alignment: {
-                    horizontal: "center",
+                    horizontal: "left", // Rata kiri pada Excel
                     vertical: "center",
                     textRotation: 90,
-                    wrapText: true // Aktifkan Auto Wrap Text pada hasil Export Excel
+                    wrapText: true
                 },
                 font: {
                     bold: true
@@ -344,7 +344,7 @@
             for (let col = 0; col < totalCols; col++) {
                 const cellRef = XLSX.utils.encode_cell({ r: 5, c: col });
                 if (worksheet[cellRef]) {
-                    worksheet[cellRef].s = col === 0 ? centerStyle : verticalHeaderStyle;
+                    worksheet[cellRef].s = col === 0 ? centerStyle : verticalHeaderLeftStyle;
                 }
             }
 
