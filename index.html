@@ -406,6 +406,9 @@ function exportData() {
 
     // --- KONFIGURASI MERGE, ROW HEIGHT, & COLUMN WIDTH ---
     ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 18 } }, // Merge Baris 1
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 18 } }, // Merge Baris 2 
+        { s: { r: 2, c: 0 }, e: { r: 2, c: 18 } }, // Merge Baris 3
         { s: { r: 5, c: 0 }, e: { r: 5, c: 14 } },  // Merge Header Controller Section
         { s: { r: 5, c: 16 }, e: { r: 5, c: 17 } }, // Merge Header OLM Section
         { s: { r: envStartRow, c: 0 }, e: { r: envStartRow, c: 17 } } // Merge Header Environment Section
