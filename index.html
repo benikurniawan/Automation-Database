@@ -315,6 +315,14 @@
                 { s: { r: 4, c: 0 }, e: { r: 4, c: 14 } }
             ];
 
+            const centerStyle = {
+                alignment: {
+                    horizontal: "center",
+                    vertical: "center"
+                },
+                font: {
+                    bold: true
+                }
             const leftStyle = {
                 alignment: {
                     horizontal: "left",
@@ -337,9 +345,9 @@
                 }
             };
 
-            if (worksheet['A1']) worksheet['A1'].s = { ...leftStyle, font: { bold: true, size: 14 } };
-            if (worksheet['A2']) worksheet['A2'].s = leftStyle;
-            if (worksheet['A5']) worksheet['A5'].s = leftStyle;
+            if (worksheet['A1']) worksheet['A1'].s = { ...centerStyle, font: { bold: true, size: 14 } };
+            if (worksheet['A2']) worksheet['A2'].s = centerStyle;
+            if (worksheet['A5']) worksheet['A5'].s = centerStyle;
 
             const totalCols = 15;
             for (let col = 0; col < totalCols; col++) {
