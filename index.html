@@ -264,6 +264,8 @@ function exportData() {
     const fontDataBold = { name: "Calibri", sz: 10, bold: true, color: { rgb: "111827" } };
 
     const fillCtrlHeader = { fgColor: { rgb: "FFFFFF" } }; // Dark Blue
+    const filldarkblue = { fgColor: { rgb: "1F4E79" } };
+    const fillsoftblue = { fgColor: { rgb: "2E75B6" } };
     const fillOlmHeader = { fgColor: { rgb: "FFFFFF" } };  // Dark Purple
     const fillEnvHeader = { fgColor: { rgb: "FFFFFF" } };  // Dark Green
     const fillSeparator = { fgColor: { rgb: "9CA3AF" } };  // Grey Separator
@@ -276,8 +278,8 @@ function exportData() {
     };
 
     // --- METADATA HEADER ---
-    setCell(0, 0, "AUTOMATION DAILY CHECKLIST", { font: fontTitle });
-    setCell(1, 0, "Equipment & Environment Monitoring System — FORM-CHK-001 REV 02", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "6B7280" } } });
+    setCell(0, 0, "AUTOMATION DAILY CHECKLIST", { font: fontTitle, fill: filldarkblue });
+    setCell(1, 0, "Equipment & Environment Monitoring System", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "6B7280" } }, fill: fillsoftblue });
 
     setCell(3, 0, "Date:", { font: fontMeta });
     setCell(3, 1, dateStr, { font: fontData });
