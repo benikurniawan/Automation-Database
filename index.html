@@ -201,15 +201,15 @@
             tr.className = "hover:bg-slate-800/30 transition";
             tr.innerHTML = `
             <td class="py-3 px-3 font-semibold text-blue-400 text-left">${ctrl}</td>
-            <td class="py-3 px-3 text-left"><select id="${ctrl}-status" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="FAULT">FAULT</option><option value="WARN">WARN</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-status" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="FAULT">FAULT</option></select></td>
             <td class="py-3 px-3 text-left"><input type="text" id="${ctrl}-act-fault" placeholder="None" class="custom-input px-2 py-1 rounded-lg text-xs w-20"></td>
             <td class="py-3 px-3 text-left"><input type="text" id="${ctrl}-hw-fault" placeholder="None" class="custom-input px-2 py-1 rounded-lg text-xs w-20"></td>
             <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-cpu-load" placeholder="25%" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
             <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-cpu-temp" placeholder="42°C" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-            <td class="py-3 px-3 text-left"><select id="${ctrl}-role" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Primary">Primary</option><option value="Backup">Backup</option><option value="Standalone">Standalone</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-role" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Main">Main</option><option value="Reserve">Reserve</option><option value="Standalone">Standalone</option></select></td>
             <td class="py-3 px-3 text-left"><select id="${ctrl}-func-redundant" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option><option value="N/A">N/A</option></select></td>
-            <td class="py-3 px-3 text-left"><select id="${ctrl}-sysbus-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Connected">Connected</option><option value="Disconnected">Disconnected</option></select></td>
-            <td class="py-3 px-3 text-left"><select id="${ctrl}-sysbus-red-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Connected">Connected</option><option value="Disconnected">Disconnected</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-sysbus-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-sysbus-red-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option></select></td>
             <td class="py-3 px-3 text-left"><select id="${ctrl}-update-bus" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option></select></td>
             <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-own-fieldbus" placeholder="2" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
             <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-red-fieldbus" placeholder="2" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
