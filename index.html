@@ -12,15 +12,19 @@
     .custom-input { background: #0f172a; border: 1px solid #334155; color: #f8fafc; transition: all 0.2s; }
     .custom-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
     
-    /* CSS untuk Orientasi Teks Header Vertikal (Text to Down) */
+    /* CSS untuk Orientasi Teks Header Vertikal + Wrap Text (Multi-line) */
     .vertical-header {
       writing-mode: vertical-lr;
       transform: rotate(180deg);
-      white-space: nowrap;
-      height: 180px;
+      white-space: normal; /* Mengizinkan teks bersambung ke bawah/samping */
+      word-wrap: break-word;
+      height: 160px;
+      max-width: 28px; /* Menjaga kolom tetap ringkas dan memaksa teks panjang turun */
       display: inline-flex;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: flex-end;
+      text-align: center;
+      line-height: 1.1;
     }
   </style>
 </head>
@@ -92,7 +96,7 @@
                             <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Role of Activity</div></th>
                             <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Funct. of redundant node</div></th>
                             <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Sys. bus conn. state</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Sys. bus conn. state of the redundant machine</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Sys. bus conn. state of redundant machine</div></th>
                             <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Update bus conn. to redundant node</div></th>
                             <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Oper. numb. of own field bus conn.</div></th>
                             <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Oper. numb. of redundant field bus conn.</div></th>
@@ -239,17 +243,16 @@
             const shift = document.getElementById("insp-shift").value;
             const inspector = document.getElementById("insp-name").value || "-";
 
-            // Matrix array untuk menampung semua baris data
             let sheetData = [];
 
             // 1. DATA METADATA
-            sheetData.push(["DAILY INSPECTION CHECKLIST"]); // Baris index 0
-            sheetData.push(["Equipment & Environment Monitoring All Shifts"]); // Baris index 1
+            sheetData.push(["DAILY INSPECTION CHECKLIST"]);
+            sheetData.push(["Equipment & Environment Monitoring All Shifts"]);
             sheetData.push([`Date: ${dateStr}`, "", "", "", `Shift: ${shift}`, "", "", "", `Inspector: ${inspector}`]);
-            sheetData.push([]); // Baris Kosong
+            sheetData.push([]);
 
             // 2. TABEL CONTROLLERS
-            sheetData.push(["=== CONTROLLERS SYSTEM INSPECTION ==="]); // Baris index 4
+            sheetData.push(["=== CONTROLLERS SYSTEM INSPECTION ==="]);
             sheetData.push([
                 "Controller", "Status", "Active Fault", "HW Faults", "CPU Load", "CPU Temp",
                 "Role of Activity", "Functionality of redundant node", "System bus connection state",
@@ -281,7 +284,7 @@
             });
 
             // 3. TABEL PROFIBUS OLM
-            sheetData.push([]); // Baris Kosong
+            sheetData.push([]);
             sheetData.push(["=== PROFIBUS OLM FAULTS INSPECTION ==="]);
             sheetData.push(["OLM Node", "Status"]);
 
@@ -291,7 +294,7 @@
             });
 
             // 4. ENVIRONMENT & POWER SYSTEM
-            sheetData.push([]); // Baris Kosong
+            sheetData.push([]);
             sheetData.push(["=== ENVIRONMENT & POWER SYSTEM ==="]);
             sheetData.push(["Parameter", "Value"]);
             sheetData.push(["Room Temperature (°C)", document.getElementById("env-temp").value || '0']);
@@ -300,24 +303,17 @@
             sheetData.push(["UPS Status", document.getElementById("ups-status").value]);
             sheetData.push(["Cabinet Condition", document.getElementById("cabinet-status").value]);
 
-            // Bikin Worksheet dari Array Data
             const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
-            // -------------------------------------------------------------
-            // A. MENGATUR MERGE CELL (15 Kolom: Kolom A [index 0] - O [index 14])
-            // -------------------------------------------------------------
             worksheet['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } }, // Merge Judul Utama Baris 1
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 14 } }, // Merge Sub-Judul Baris 2
-                { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } }, // Merge Date
-                { s: { r: 2, c: 4 }, e: { r: 2, c: 8 } }, // Merge Shift
-                { s: { r: 2, c: 8 }, e: { r: 2, c: 12 } }, // Merge Name
-                { s: { r: 4, c: 0 }, e: { r: 4, c: 14 } }  // Merge Header Controllers
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 14 } },
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
+                { s: { r: 2, c: 4 }, e: { r: 2, c: 8 } },
+                { s: { r: 2, c: 8 }, e: { r: 2, c: 12 } },
+                { s: { r: 4, c: 0 }, e: { r: 4, c: 14 } }
             ];
 
-            // -------------------------------------------------------------
-            // B. MENGATUR FORMAT ALIGNMENT & ROTASI TEKS VERTIKAL DI EXCEL
-            // -------------------------------------------------------------
             const centerStyle = {
                 alignment: {
                     horizontal: "center",
@@ -332,33 +328,29 @@
                 alignment: {
                     horizontal: "center",
                     vertical: "center",
-                    textRotation: 90 // Membuat orientasi teks di Excel miring vertikal 90 derajat
+                    textRotation: 90,
+                    wrapText: true // Aktifkan Auto Wrap Text pada hasil Export Excel
                 },
                 font: {
                     bold: true
                 }
             };
 
-            // Terapkan style Center & Bold pada cell yang di-merge
             if (worksheet['A1']) worksheet['A1'].s = { ...centerStyle, font: { bold: true, size: 14 } };
             if (worksheet['A2']) worksheet['A2'].s = centerStyle;
             if (worksheet['A5']) worksheet['A5'].s = centerStyle;
 
-            // Format Header Tabel Controller (Baris index 5 / Baris 6 Excel)
             const totalCols = 15;
             for (let col = 0; col < totalCols; col++) {
                 const cellRef = XLSX.utils.encode_cell({ r: 5, c: col });
                 if (worksheet[cellRef]) {
-                    // Kolom Controller tetap horizontal, kolom sisanya dijadikan vertikal
                     worksheet[cellRef].s = col === 0 ? centerStyle : verticalHeaderStyle;
                 }
             }
 
-            // Atur tinggi baris header Excel agar teks vertikal muat rapi
             if (!worksheet['!rows']) worksheet['!rows'] = [];
             worksheet['!rows'][5] = { hpt: 120 };
 
-            // Export file ke Excel .xlsx
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Checklist");
             XLSX.writeFile(workbook, `Full_Automation_Checklist_${dateStr}.xlsx`);
