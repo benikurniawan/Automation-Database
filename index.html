@@ -587,7 +587,6 @@ function exportData() {
     setCell(5, 16, "PROFIBUS OLM FAULTS", { font: fontHeaderSec, alignment: { horizontal: "center", vertical: "center" } });
 
 
-
     // --- BARIS 6: HEADER TABEL CONTROLLER & OLM ---
 
     const ctrlHeaders = [
@@ -623,6 +622,8 @@ function exportData() {
     // Kolom Separator Grey
 
     setCell(6, 15, "", { fill: fillSeparator });
+    setCell(36,16, "", { fill: fillSeparator });
+    setCell(36,17, "", { fill: fillSeparator });
 
 
 
@@ -821,7 +822,7 @@ function exportData() {
 
         { s: { r: 5, c: 16 }, e: { r: 5, c: 17 } }, // Merge Header OLM Section
 
-        { s: { r: envStartRow, c: 0 }, e: { r: envStartRow, c: 17 } } // Merge Header Environment Section
+        { s: { r: envStartRow, c: 0 }, e: { r: envStartRow, c: 17 } }, // Merge Header Environment Section
 
     ];
 
