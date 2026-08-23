@@ -12,18 +12,18 @@
     .custom-input { background: #0f172a; border: 1px solid #334155; color: #f8fafc; transition: all 0.2s; }
     .custom-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
     
-    /* CSS untuk Orientasi Teks Header Vertikal + Wrap Text + Rata Kiri */
+    /* CSS untuk Orientasi Teks Header Vertikal - Konsisten Rata Kiri Semua */
     .vertical-header {
       writing-mode: vertical-lr;
       transform: rotate(180deg);
-      white-space: normal; /* Mengizinkan teks bersambung ke bawah */
+      white-space: normal;
       word-wrap: break-word;
       height: 160px;
       max-width: 28px;
       display: inline-flex;
-      align-items: flex-start; /* Rata Kiri (Posisi atas setelah di-rotate) */
-      justify-content: flex-end; /* Memastikan awal teks mulai dari bawah header */
-      text-align: left; /* Teks rata kiri */
+      align-items: flex-start;  /* Menempatkan awal teks di atas (setelah diputar) */
+      justify-content: flex-end; /* Memulai aliran teks dari batas bawah kolom header */
+      text-align: left;           /* Memastikan format alinea rata kiri */
       line-height: 1.1;
     }
   </style>
@@ -87,21 +87,21 @@
                 <table class="w-full text-left text-xs whitespace-nowrap">
                     <thead>
                         <tr class="border-b border-slate-800 text-slate-400 uppercase font-semibold">
-                            <th class="pb-3 px-3 align-bottom">Controller</th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Status</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Active Fault</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">HW Faults</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">CPU Load</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">CPU Temperature</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Role of Activity</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Funct. of redundant node</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Sys. bus conn. state</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Sys. bus conn. state of redundant machine</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Update bus conn. to redundant node</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Oper. numb. of own field bus conn.</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Oper. numb. of redundant field bus conn.</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">FBC02 status (Any IBC Fault?)</div></th>
-                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">FBC03 status (Any IBC Fault?)</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left">Controller</th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Status</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Active Fault</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">HW Faults</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">CPU Load</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">CPU Temperature</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Role of Activity</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Funct. of redundant node</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Sys. bus conn. state</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Sys. bus conn. state of redundant machine</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Update bus conn. to redundant node</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Oper. numb. of own field bus conn.</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Oper. numb. of redundant field bus conn.</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">FBC02 status (Any IBC Fault?)</div></th>
+                            <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">FBC03 status (Any IBC Fault?)</div></th>
                         </tr>
                     </thead>
                     <tbody id="controller-table-body" class="divide-y divide-slate-800/50">
@@ -175,6 +175,7 @@
             </div>
         </div>
     </main>
+
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script>
@@ -199,21 +200,21 @@
             const tr = document.createElement('tr');
             tr.className = "hover:bg-slate-800/30 transition";
             tr.innerHTML = `
-            <td class="py-3 px-3 font-semibold text-blue-400">${ctrl}</td>
-            <td class="py-3 px-3"><select id="${ctrl}-status" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="FAULT">FAULT</option><option value="WARN">WARN</option></select></td>
-            <td class="py-3 px-3"><input type="text" id="${ctrl}-act-fault" placeholder="None" class="custom-input px-2 py-1 rounded-lg text-xs w-20"></td>
-            <td class="py-3 px-3"><input type="text" id="${ctrl}-hw-fault" placeholder="None" class="custom-input px-2 py-1 rounded-lg text-xs w-20"></td>
-            <td class="py-3 px-3"><input type="number" id="${ctrl}-cpu-load" placeholder="25%" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-            <td class="py-3 px-3"><input type="number" id="${ctrl}-cpu-temp" placeholder="42°C" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-            <td class="py-3 px-3"><select id="${ctrl}-role" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Primary">Primary</option><option value="Backup">Backup</option><option value="Standalone">Standalone</option></select></td>
-            <td class="py-3 px-3"><select id="${ctrl}-func-redundant" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option><option value="N/A">N/A</option></select></td>
-            <td class="py-3 px-3"><select id="${ctrl}-sysbus-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Connected">Connected</option><option value="Disconnected">Disconnected</option></select></td>
-            <td class="py-3 px-3"><select id="${ctrl}-sysbus-red-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Connected">Connected</option><option value="Disconnected">Disconnected</option></select></td>
-            <td class="py-3 px-3"><select id="${ctrl}-update-bus" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option></select></td>
-            <td class="py-3 px-3"><input type="number" id="${ctrl}-own-fieldbus" placeholder="2" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-            <td class="py-3 px-3"><input type="number" id="${ctrl}-red-fieldbus" placeholder="2" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-            <td class="py-3 px-3"><select id="${ctrl}-fbc02" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK (No Fault)</option><option value="Fault">IBC Fault</option></select></td>
-            <td class="py-3 px-3"><select id="${ctrl}-fbc03" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK (No Fault)</option><option value="Fault">IBC Fault</option></select></td>
+            <td class="py-3 px-3 font-semibold text-blue-400 text-left">${ctrl}</td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-status" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="FAULT">FAULT</option><option value="WARN">WARN</option></select></td>
+            <td class="py-3 px-3 text-left"><input type="text" id="${ctrl}-act-fault" placeholder="None" class="custom-input px-2 py-1 rounded-lg text-xs w-20"></td>
+            <td class="py-3 px-3 text-left"><input type="text" id="${ctrl}-hw-fault" placeholder="None" class="custom-input px-2 py-1 rounded-lg text-xs w-20"></td>
+            <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-cpu-load" placeholder="25%" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
+            <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-cpu-temp" placeholder="42°C" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-role" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Primary">Primary</option><option value="Backup">Backup</option><option value="Standalone">Standalone</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-func-redundant" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option><option value="N/A">N/A</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-sysbus-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Connected">Connected</option><option value="Disconnected">Disconnected</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-sysbus-red-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Connected">Connected</option><option value="Disconnected">Disconnected</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-update-bus" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option></select></td>
+            <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-own-fieldbus" placeholder="2" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
+            <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-red-fieldbus" placeholder="2" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-fbc02" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK (No Fault)</option><option value="Fault">IBC Fault</option></select></td>
+            <td class="py-3 px-3 text-left"><select id="${ctrl}-fbc03" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK (No Fault)</option><option value="Fault">IBC Fault</option></select></td>
           `;
             tbody.appendChild(tr);
         });
@@ -314,9 +315,9 @@
                 { s: { r: 4, c: 0 }, e: { r: 4, c: 14 } }
             ];
 
-            const centerStyle = {
+            const leftStyle = {
                 alignment: {
-                    horizontal: "center",
+                    horizontal: "left",
                     vertical: "center"
                 },
                 font: {
@@ -326,7 +327,7 @@
 
             const verticalHeaderLeftStyle = {
                 alignment: {
-                    horizontal: "left", // Rata kiri pada Excel
+                    horizontal: "left",
                     vertical: "center",
                     textRotation: 90,
                     wrapText: true
@@ -336,15 +337,15 @@
                 }
             };
 
-            if (worksheet['A1']) worksheet['A1'].s = { ...centerStyle, font: { bold: true, size: 14 } };
-            if (worksheet['A2']) worksheet['A2'].s = centerStyle;
-            if (worksheet['A5']) worksheet['A5'].s = centerStyle;
+            if (worksheet['A1']) worksheet['A1'].s = { ...leftStyle, font: { bold: true, size: 14 } };
+            if (worksheet['A2']) worksheet['A2'].s = leftStyle;
+            if (worksheet['A5']) worksheet['A5'].s = leftStyle;
 
             const totalCols = 15;
             for (let col = 0; col < totalCols; col++) {
                 const cellRef = XLSX.utils.encode_cell({ r: 5, c: col });
                 if (worksheet[cellRef]) {
-                    worksheet[cellRef].s = col === 0 ? centerStyle : verticalHeaderLeftStyle;
+                    worksheet[cellRef].s = verticalHeaderLeftStyle;
                 }
             }
 
