@@ -24,16 +24,16 @@
                 </span>
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-white">Automation Daily Check List</h1>
-                    <p class="text-sm text-slate-400">Equipment & Environment Monitoring System — FORM-CHK-001 REV 02</p>
+                    <p class="text-sm text-slate-400">Equipment & Environment Monitoring System</p>
                 </div>
             </div>
         </div>
         <div class="flex items-center gap-3">
             <button onclick="saveData()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-blue-600/20">
-                <i class="fa-solid fa-floppy-disk"></i> Simpan Data
+                <i class="fa-solid fa-floppy-disk"></i> Save Data
             </button>
             <button onclick="exportData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-medium border border-slate-700 transition flex items-center gap-2">
-                <i class="fa-solid fa-file-export"></i> Export CSV
+                <i class="fa-solid fa-file-export"></i> Export to CSV
             </button>
         </div>
     </header>
@@ -42,11 +42,11 @@
     <main class="max-w-[95%] mx-auto space-y-6">
         <div class="glass-card p-6 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Tanggal Inspeksi</label>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Inspection Date</label>
                 <input type="date" id="insp-date" class="w-full px-4 py-2.5 rounded-xl custom-input text-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Shift Operasional</label>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Operational Shift</label>
                 <select id="insp-shift" class="w-full px-4 py-2.5 rounded-xl custom-input text-sm">
                     <option value="Shift 1">Shift 1</option>
                     <option value="Shift 2">Shift 2</option>
@@ -83,7 +83,7 @@
                             <th class="pb-3 px-3">Active Fault</th>
                             <th class="pb-3 px-3">HW Faults</th>
                             <th class="pb-3 px-3">CPU Load</th>
-                            <th class="pb-3 px-3">CPU Temperature</th>
+                            <th class="pb-3 px-3">CPU Temp.</th>
                             <th class="pb-3 px-3">Role of Activity</th>
                             <th class="pb-3 px-3">Funct. of redundant node</th>
                             <th class="pb-3 px-3">Sys. bus conn. state</th>
