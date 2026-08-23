@@ -11,6 +11,17 @@
     .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
     .custom-input { background: #0f172a; border: 1px solid #334155; color: #f8fafc; transition: all 0.2s; }
     .custom-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+    
+    /* CSS untuk Orientasi Teks Header Vertikal (Text to Down) */
+    .vertical-header {
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      white-space: nowrap;
+      height: 180px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
   </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen">
@@ -72,21 +83,21 @@
                 <table class="w-full text-left text-xs whitespace-nowrap">
                     <thead>
                         <tr class="border-b border-slate-800 text-slate-400 uppercase font-semibold">
-                            <th class="pb-3 px-3">Controller</th>
-                            <th class="pb-3 px-3">Status</th>
-                            <th class="pb-3 px-3">Active Fault</th>
-                            <th class="pb-3 px-3">HW Faults</th>
-                            <th class="pb-3 px-3">CPU Load</th>
-                            <th class="pb-3 px-3">CPU Temperature</th>
-                            <th class="pb-3 px-3">Role of Activity</th>
-                            <th class="pb-3 px-3">Funct. of redundant node</th>
-                            <th class="pb-3 px-3">Sys. bus conn. state</th>
-                            <th class="pb-3 px-3">Sys. bus conn. state of the redundant machine</th>
-                            <th class="pb-3 px-3">Update bus conn. to redundant node</th>
-                            <th class="pb-3 px-3">Oper. numb. of own field bus conn.</th>
-                            <th class="pb-3 px-3">Oper. numb. of redundant field bus conn.</th>
-                            <th class="pb-3 px-3">FBC02 status (Any IBC Fault?)</th>
-                            <th class="pb-3 px-3">FBC03 status (Any IBC Fault?)</th>
+                            <th class="pb-3 px-3 align-bottom">Controller</th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Status</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Active Fault</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">HW Faults</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">CPU Load</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">CPU Temperature</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Role of Activity</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Funct. of redundant node</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Sys. bus conn. state</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Sys. bus conn. state of the redundant machine</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Update bus conn. to redundant node</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Oper. numb. of own field bus conn.</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">Oper. numb. of redundant field bus conn.</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">FBC02 status (Any IBC Fault?)</div></th>
+                            <th class="pb-3 px-3 align-bottom"><div class="vertical-header">FBC03 status (Any IBC Fault?)</div></th>
                         </tr>
                     </thead>
                     <tbody id="controller-table-body" class="divide-y divide-slate-800/50">
@@ -298,14 +309,14 @@
             worksheet['!merges'] = [
                 { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } }, // Merge Judul Utama Baris 1
                 { s: { r: 1, c: 0 }, e: { r: 1, c: 14 } }, // Merge Sub-Judul Baris 2
-                { s: { r:2 , c: 0 }, e: { r: 2, c: 3 } }, // Merge Date
-                { s: { r:2 , c: 4 }, e: { r: 2, c: 8 } }, // Merge Shift
-                { s: { r:2 , c: 8 }, e: { r: 2, c: 12 } }, // Merge Name
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } }, // Merge Date
+                { s: { r: 2, c: 4 }, e: { r: 2, c: 8 } }, // Merge Shift
+                { s: { r: 2, c: 8 }, e: { r: 2, c: 12 } }, // Merge Name
                 { s: { r: 4, c: 0 }, e: { r: 4, c: 14 } }  // Merge Header Controllers
             ];
 
             // -------------------------------------------------------------
-            // B. MENGATUR FORMAT ALIGNMENT (CENTER) & STYLE
+            // B. MENGATUR FORMAT ALIGNMENT & ROTASI TEKS VERTIKAL DI EXCEL
             // -------------------------------------------------------------
             const centerStyle = {
                 alignment: {
@@ -317,19 +328,35 @@
                 }
             };
 
+            const verticalHeaderStyle = {
+                alignment: {
+                    horizontal: "center",
+                    vertical: "center",
+                    textRotation: 90 // Membuat orientasi teks di Excel miring vertikal 90 derajat
+                },
+                font: {
+                    bold: true
+                }
+            };
+
             // Terapkan style Center & Bold pada cell yang di-merge
             if (worksheet['A1']) worksheet['A1'].s = { ...centerStyle, font: { bold: true, size: 14 } };
             if (worksheet['A2']) worksheet['A2'].s = centerStyle;
             if (worksheet['A5']) worksheet['A5'].s = centerStyle;
 
-            // (Opsional) Bikin teks Header Kolom Controller (Baris index 5 / Baris 6 Excel) jadi Bold & Center
+            // Format Header Tabel Controller (Baris index 5 / Baris 6 Excel)
             const totalCols = 15;
             for (let col = 0; col < totalCols; col++) {
                 const cellRef = XLSX.utils.encode_cell({ r: 5, c: col });
                 if (worksheet[cellRef]) {
-                    worksheet[cellRef].s = centerStyle;
+                    // Kolom Controller tetap horizontal, kolom sisanya dijadikan vertikal
+                    worksheet[cellRef].s = col === 0 ? centerStyle : verticalHeaderStyle;
                 }
             }
+
+            // Atur tinggi baris header Excel agar teks vertikal muat rapi
+            if (!worksheet['!rows']) worksheet['!rows'] = [];
+            worksheet['!rows'][5] = { hpt: 120 };
 
             // Export file ke Excel .xlsx
             const workbook = XLSX.utils.book_new();
