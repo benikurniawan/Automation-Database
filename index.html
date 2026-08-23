@@ -560,7 +560,7 @@ function exportData() {
 
     setCell(0, 0, "AUTOMATION DAILY CHECKLIST", { font: fontTitle, alignment: { horizontal: "center", vertical: "center" }, fill: filldarkblue });
 
-    setCell(1, 0, "Equipment & Environment Monitoring System", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "FFFFFF" } }, fill: fillsoftblue });
+    setCell(1, 0, "Equipment & Environment Monitoring System", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "center", vertical: "center" }, fill: fillsoftblue });
 
 
 
@@ -813,9 +813,9 @@ function exportData() {
     // --- KONFIGURASI MERGE, ROW HEIGHT, & COLUMN WIDTH ---
 
     ws['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 18 } },
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 17 } },
 
-        { s: { r: 1, c: 0 }, e: { r: 1, c: 18 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 17 } },
 
         { s: { r: 5, c: 0 }, e: { r: 5, c: 14 } },  // Merge Header Controller Section
 
