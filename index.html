@@ -1,881 +1,470 @@
 <!DOCTYPE html>
-
 <html lang="id">
-
 <head>
-
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Automation Daily Check List Dashboard</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
-
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
   <style>
-
     body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
-
     .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-
     .custom-input { background: #0f172a; border: 1px solid #334155; color: #f8fafc; transition: all 0.2s; }
-
     .custom-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-
     
-
-    /* CSS untuk Orientasi Teks Header Vertikal - Konsisten Rata Kiri Semua */
-
     .vertical-header {
-
       writing-mode: vertical-lr;
-
       transform: rotate(180deg);
-
       white-space: normal;
-
       word-wrap: break-word;
-
       height: 160px;
-
       max-width: 28px;
-
       display: inline-flex;
-
-      align-items: flex-start;  /* Menempatkan awal teks di atas (setelah diputar) */
-
-      justify-content: flex-end; /* Memulai aliran teks dari batas bawah kolom header */
-
-      text-align: left;           /* Memastikan format alinea rata kiri */
-
+      align-items: flex-start;
+      justify-content: flex-end;
+      text-align: left;
       line-height: 1.1;
-
     }
-
   </style>
-
 </head>
-
 <body class="p-4 md:p-8 min-h-screen">
 
-
-
     <!-- Header -->
-
     <header class="max-w-[95%] mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-6 rounded-2xl">
-
         <div>
-
             <div class="flex items-center gap-3">
-
                 <span class="p-3 bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30">
-
                     <i class="fa-solid fa-microchip text-2xl"></i>
-
                 </span>
-
                 <div>
-
                     <h1 class="text-2xl font-bold tracking-tight text-white">Automation Daily Check List</h1>
-
                     <p class="text-sm text-slate-400">Equipment & Environment Monitoring System — FORM-CHK-001 REV 02</p>
-
                 </div>
-
             </div>
-
         </div>
-
         <div class="flex items-center gap-3">
-
             <button onclick="saveData()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-blue-600/20">
-
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Data
-
             </button>
-
             <button onclick="exportData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-medium border border-slate-700 transition flex items-center gap-2">
-
-                <i class="fa-solid fa-file-export"></i> Export CSV
-
+                <i class="fa-solid fa-file-export"></i> Export CSV / Excel
             </button>
-
         </div>
-
     </header>
 
-
-
     <!-- Form Metadata -->
-
     <main class="max-w-[95%] mx-auto space-y-6">
-
         <div class="glass-card p-6 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-6">
-
             <div>
-
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Tanggal Inspeksi</label>
 
                 <input type="date" id="insp-date" class="w-full px-4 py-2.5 rounded-xl custom-input text-sm">
-
             </div>
-
             <div>
-
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Shift Operasional</label>
-
                 <select id="insp-shift" class="w-full px-4 py-2.5 rounded-xl custom-input text-sm">
-
                     <option value="Shift 1">Shift 1</option>
-
                     <option value="Shift 2">Shift 2</option>
-
                     <option value="Shift 3">Shift 3</option>
-
                 </select>
-
             </div>
-
             <div>
-
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Inspector ID / Name</label>
-
                 <input type="text" id="insp-name" placeholder="Nama Teknisi / NIK" class="w-full px-4 py-2.5 rounded-xl custom-input text-sm">
-
             </div>
-
         </div>
-
-
 
         <!-- Controller Checklist Section -->
-
         <div class="glass-card p-6 rounded-2xl overflow-hidden">
-
             <div class="flex items-center justify-between mb-6">
-
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-
                     <i class="fa-solid fa-server text-blue-400"></i> Controllers System Inspection
-
                 </h2>
-
                 <span class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">DCS / PLC Units</span>
-
             </div>
-
-
 
             <div class="overflow-x-auto">
-
                 <table class="w-full text-left text-xs whitespace-nowrap">
-
                     <thead>
-
                         <tr class="border-b border-slate-800 text-slate-400 uppercase font-semibold">
-
                             <th class="pb-3 px-3 align-bottom text-left">Controller</th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Status</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Active Fault</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">HW Faults</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">CPU Load</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">CPU Temperature</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Role of Activity</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Funct. of redundant node</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Sys. bus conn. state</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Sys. bus conn. state of redundant machine</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Update bus conn. to redundant node</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Oper. numb. of own field bus conn.</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">Oper. numb. of redundant field bus conn.</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">FBC02 status (Any IBC Fault?)</div></th>
-
                             <th class="pb-3 px-3 align-bottom text-left"><div class="vertical-header">FBC03 status (Any IBC Fault?)</div></th>
-
                         </tr>
-
                     </thead>
-
                     <tbody id="controller-table-body" class="divide-y divide-slate-800/50">
-
                         <!-- Dynamic rows generated by JS -->
-
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
-
-
 
         <!-- Profibus OLM Faults Section -->
-
         <div class="glass-card p-6 rounded-2xl">
-
             <div class="flex items-center justify-between mb-6">
-
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-
                     <i class="fa-solid fa-network-wired text-purple-400"></i> Profibus OLM Faults Inspection
-
                 </h2>
-
                 <span class="text-xs bg-slate-800 text-purple-400 border border-purple-500/30 px-3 py-1 rounded-full">Optical Link Module</span>
-
             </div>
-
-
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" id="olm-grid">
-
                 <!-- Dynamic OLM Cards generated by JS -->
-
             </div>
-
         </div>
-
-
 
         <!-- Room & Environment Checklist -->
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <div class="glass-card p-6 rounded-2xl">
-
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 6 Rack Rooms Environment (Mengambil 2/3 Lebar Grid di Desktop) -->
+            <div class="glass-card p-6 rounded-2xl lg:col-span-2">
                 <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-temperature-arrow-up text-amber-400"></i> Rack Room Environment
-
+                    <i class="fa-solid fa-temperature-arrow-up text-amber-400"></i> Rack Room Environment Monitoring (6 Rooms)
                 </h2>
-
-                <div class="space-y-4">
-
-                    <div>
-
-                        <label class="block text-xs text-slate-400 mb-1">Temperature (°C)</label>
-
-                        <input type="number" id="env-temp" placeholder="22" class="w-full px-4 py-2 rounded-xl custom-input text-sm">
-
-                    </div>
-
-                    <div>
-
-                        <label class="block text-xs text-slate-400 mb-1">Relative Humidity (%)</label>
-
-                        <input type="number" id="env-rh" placeholder="50" class="w-full px-4 py-2 rounded-xl custom-input text-sm">
-
-                    </div>
-
-                    <div>
-
-                        <label class="block text-xs text-slate-400 mb-1">Kebersihan & Akses Room</label>
-
-                        <select id="env-clean" class="w-full px-4 py-2 rounded-xl custom-input text-sm">
-
-                            <option value="Clean & Closed">Bersih & Pintu Tertutup</option>
-
-                            <option value="Needs Cleaning">Perlu Pembersihan</option>
-
-                            <option value="Door Open">Pintu Terbuka</option>
-
-                        </select>
-
-                    </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="rack-rooms-grid">
+                    <!-- Dynamic Rack Rooms Generated by JS -->
                 </div>
-
             </div>
 
-
-
-            <div class="glass-card p-6 rounded-2xl">
-
-                <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-
-                    <i class="fa-solid fa-car-battery text-emerald-400"></i> Power System (UPS & Cabinet)
-
-                </h2>
-
-                <div class="space-y-4">
-
-                    <div>
-
-                        <label class="block text-xs text-slate-400 mb-1">UPS Fault Status</label>
-
-                        <select id="ups-status" class="w-full px-4 py-2 rounded-xl custom-input text-sm">
-
-                            <option value="Normal">Normal / Healthy</option>
-
-                            <option value="Battery Warning">Battery Warning</option>
-
-                            <option value="Fault">UPS Fault</option>
-
-                        </select>
-
+            <!-- Power System & Cabinet (Mengambil 1/3 Lebar Grid) -->
+            <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-car-battery text-emerald-400"></i> Power System (UPS & Cabinet)
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">UPS Fault Status</label>
+                            <select id="ups-status" class="w-full px-4 py-2 rounded-xl custom-input text-sm">
+                                <option value="Normal">Normal / Healthy</option>
+                                <option value="Battery Warning">Battery Warning</option>
+                                <option value="Fault">UPS Fault</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">All Cabinet Closed Condition</label>
+                            <select id="cabinet-status" class="w-full px-4 py-2 rounded-xl custom-input text-sm">
+                                <option value="Closed">Semua Cabinet Tertutup</option>
+                                <option value="Open">Ada Cabinet Terbuka</option>
+                            </select>
+                        </div>
                     </div>
-
-                    <div>
-
-                        <label class="block text-xs text-slate-400 mb-1">All Cabinet Closed Condition</label>
-
-                        <select id="cabinet-status" class="w-full px-4 py-2 rounded-xl custom-input text-sm">
-
-                            <option value="Closed">Semua Cabinet Tertutup</option>
-
-                            <option value="Open">Ada Cabinet Terbuka</option>
-
-                        </select>
-
-                    </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </main>
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-
     <script>
-
         const controllers = [
-
             'AP01M', 'AP01R', 'AP02M', 'AP02R', 'AP03M', 'AP03R', 'AP04M', 'AP04R',
-
             'AP05M', 'AP05R', 'AP06M', 'AP06R', 'AP09M', 'AP09R', 'AP10M', 'AP10R', 'AP11M', 'AP11R',
-
             'AP12M', 'AP12R', 'AP13M', 'AP13R', 'AP20', 'AP30', 'APC1', 'AP21', 'AP22', 'AP23', 'AP24', 'AP25', 'AP26',
-
             'AP27', 'AP28', 'AP29', 'ACS1', 'ACS2', 'ACS6', 'ACS7', 'ACSA', 'ACSB', 'CP01M', 'CP01R', 'CP02M', 'CP02M', 'CP02R', 'CP03M', 'CP03R'
-
         ];
-
-
 
         const olmNodes = [
-
             'AP01mr4', 'AP01mr5', 'AP02mr4', 'AP02mr5', 'AP03mr5',
-
             'AP04mr4', 'AP04mr5', 'AP05mr5', 'AP05mr6', 'AP05mr7', 'AP06mr4', 'AP06mr5', 'AP06mr6', 'AP06mr7', 'AP09mr4', 'AP09mr5', 'AP10mr4',
-
             'AP10mr5', 'AP11mr4', 'AP12mr4', 'AP12mr5', 'AP13mr4', 'AP13mr5', 'CP01mr4', 'CP01mr4', 'CP02mr4', 'CP02mr5', 'CP03mr4', 'CP04mr5'
-
         ];
 
-
+        // Daftar 6 Ruangan Rack Room Environment
+        const rackRooms = [
+            { id: 'wet-end', name: 'Wet End' },
+            { id: 'stock-prep', name: 'Stock Prep' },
+            { id: 'dry-end', name: 'Dry End' },
+            { id: 'mcs', name: 'MCS' },
+            { id: 'cck', name: 'CCK' },
+            { id: 'wec', name: 'WEC' }
+        ];
 
         document.getElementById('insp-date').valueAsDate = new Date();
 
-
-
         // Render Controllers Table
-
         const tbody = document.getElementById('controller-table-body');
-
         controllers.forEach((ctrl) => {
-
             const tr = document.createElement('tr');
-
             tr.className = "hover:bg-slate-800/30 transition";
-
             tr.innerHTML = `
-
             <td class="py-3 px-3 font-semibold text-blue-400 text-left">${ctrl}</td>
-
             <td class="py-3 px-3 text-left"><select id="${ctrl}-status" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="FAULT">FAULT</option></select></td>
-
             <td class="py-3 px-3 text-left"><input type="text" id="${ctrl}-act-fault" placeholder="None" class="custom-input px-2 py-1 rounded-lg text-xs w-20"></td>
-
             <td class="py-3 px-3 text-left"><input type="text" id="${ctrl}-hw-fault" placeholder="None" class="custom-input px-2 py-1 rounded-lg text-xs w-20"></td>
-
             <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-cpu-load" placeholder="25%" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-
             <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-cpu-temp" placeholder="42°C" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-
             <td class="py-3 px-3 text-left"><select id="${ctrl}-role" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="Main">Main</option><option value="Reserve">Reserve</option><option value="Standalone">Standalone</option></select></td>
-
             <td class="py-3 px-3 text-left"><select id="${ctrl}-func-redundant" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option><option value="N/A">N/A</option></select></td>
-
             <td class="py-3 px-3 text-left"><select id="${ctrl}-sysbus-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option></select></td>
-
             <td class="py-3 px-3 text-left"><select id="${ctrl}-sysbus-red-state" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option></select></td>
-
             <td class="py-3 px-3 text-left"><select id="${ctrl}-update-bus" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="Error">Error</option></select></td>
-
             <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-own-fieldbus" placeholder="2" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-
             <td class="py-3 px-3 text-left"><input type="number" id="${ctrl}-red-fieldbus" placeholder="2" class="custom-input px-2 py-1 rounded-lg text-xs w-16"></td>
-
             <td class="py-3 px-3 text-left"><select id="${ctrl}-fbc02" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK (No Fault)</option><option value="Fault">IBC Fault</option></select></td>
-
             <td class="py-3 px-3 text-left"><select id="${ctrl}-fbc03" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK (No Fault)</option><option value="Fault">IBC Fault</option></select></td>
-
           `;
-
             tbody.appendChild(tr);
-
         });
-
-
 
         // Render Profibus OLM Faults Grid
-
         const olmContainer = document.getElementById('olm-grid');
-
         olmNodes.forEach((olm) => {
-
             const card = document.createElement('div');
-
             card.className = "bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex flex-col justify-between gap-2";
-
             card.innerHTML = `
-
             <div class="flex items-center justify-between">
-
               <span class="text-xs font-semibold text-slate-300">${olm}</span>
-
               <i class="fa-solid fa-circle-nodes text-slate-500 text-xs"></i>
-
             </div>
-
             <div>
-
               <select id="olm-${olm}" class="w-full custom-input px-2 py-1.5 rounded-lg text-xs font-medium">
-
                 <option value="Active" class="text-emerald-400">Active</option>
-
                 <option value="Fault" class="text-rose-400">Fault</option>
-
               </select>
-
             </div>
-
           `;
-
             olmContainer.appendChild(card);
-
         });
 
-
-
-function exportData() {
-
-    const dateStr = document.getElementById("insp-date").value || new Date().toISOString().slice(0, 10);
-
-    const shift = document.getElementById("insp-shift").value;
-
-    const inspector = document.getElementById("insp-name").value || "-";
-
-
-
-    // 1. Inisialisasi Workbook & Sheet
-
-    const wb = XLSX.utils.book_new();
-
-    const ws = {};
-
-
-
-    // Helper Fungsi Bikin Sel dengan Style
-
-    const setCell = (r, c, val, style = {}) => {
-
-        const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
-
-        ws[cellRef] = { v: val, t: typeof val === 'number' ? 'n' : 's', s: style };
-
-    };
-
-
-
-    // Style Definitions
-
-    const fontTitle = { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFF" } };
-
-    const fontMeta = { name: "Calibri", sz: 10, bold: true, color: { rgb: "374151" } };
-
-    const fontHeaderSec = { name: "Calibri", sz: 11, bold: true, color: { rgb: "1F2937" } };
-
-    const fontHeaderVert = { name: "Calibri", sz: 9, bold: true, color: { rgb: "1F2937" } };
-
-    const fontHeaderNorm = { name: "Calibri", sz: 10, bold: true, color: { rgb: "1F2937" } };
-
-    const fontData = { name: "Calibri", sz: 10, color: { rgb: "111827" } };
-
-    const fontDataBold = { name: "Calibri", sz: 10, bold: true, color: { rgb: "111827" } };
-
-
-
-    const fillCtrlHeader = { fgColor: { rgb: "FFFFFF" } }; // Dark Blue
-
-    const filldarkblue = { fgColor: { rgb: "1F4E79" } };
-
-    const fillsoftblue = { fgColor: { rgb: "2E75B6" } };
-
-    const fillOlmHeader = { fgColor: { rgb: "FFFFFF" } };  // Dark Purple
-
-    const fillEnvHeader = { fgColor: { rgb: "FFFFFF" } };  // Dark Green
-
-    const fillSeparator = { fgColor: { rgb: "9CA3AF" } };  // Grey Separator
-
-
-
-    const thinBorder = {
-
-        top: { style: "thin", color: { rgb: "E5E7EB" } },
-
-        bottom: { style: "thin", color: { rgb: "E5E7EB" } },
-
-        left: { style: "thin", color: { rgb: "E5E7EB" } },
-
-        right: { style: "thin", color: { rgb: "E5E7EB" } }
-
-    };
-
-
-
-    // --- METADATA HEADER ---
-
-    setCell(0, 0, "AUTOMATION DAILY CHECKLIST", { font: fontTitle, alignment: { horizontal: "center", vertical: "center" }, fill: filldarkblue });
-
-    setCell(1, 0, "Equipment & Environment Monitoring System", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "center", vertical: "center" }, fill: fillsoftblue });
-
-
-
-    setCell(3, 0, "Date:", { font: fontMeta });
-
-    setCell(3, 1, dateStr, { font: fontData });
-
-    setCell(3, 4, "Shift:", { font: fontMeta });
-
-    setCell(3, 5, shift, { font: fontData });
-
-    setCell(3, 8, "Inspector:", { font: fontMeta });
-
-    setCell(3, 9, inspector, { font: fontData });
-
-
-
-    // --- BARIS 5: HEADER SECTION ---
-
-    setCell(5, 0, "CONTROLLERS SYSTEM INSPECTION", { font: fontHeaderSec, alignment: { horizontal: "center", vertical: "center", indent: 1 } });
-
-    setCell(5, 15, "", { fill: fillSeparator }); // Separator header
-
-    setCell(5, 16, "PROFIBUS OLM FAULTS", { font: fontHeaderSec, alignment: { horizontal: "center", vertical: "center" } });
-
-
-    // --- BARIS 6: HEADER TABEL CONTROLLER & OLM ---
-
-    const ctrlHeaders = [
-
-        "Controller", "Status", "Active Fault", "HW Faults", "CPU Load (%)", "CPU Temp (°C)",
-
-        "Role of Activity", "Funct. of Redundant Node", "Sys. Bus Conn. State",
-
-        "Sys. Bus Conn. State (Red. Machine)", "Update Bus Conn. to Red. Node",
-
-        "Oper. Numb. Own Field Bus", "Oper. Numb. Red. Field Bus", "FBC02 Status", "FBC03 Status"
-
-    ];
-
-
-
-    ctrlHeaders.forEach((text, colIdx) => {
-
-        setCell(6, colIdx, text, {
-
-            font: fontHeaderVert,
-
-            fill: fillCtrlHeader,
-
-            alignment: { horizontal: "left", vertical: "center", textRotation: 90, wrapText: true }
-
+        // Render 6 Rack Rooms Grid
+        const roomsContainer = document.getElementById('rack-rooms-grid');
+        rackRooms.forEach((room) => {
+            const card = document.createElement('div');
+            card.className = "bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 space-y-3";
+            card.innerHTML = `
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span class="text-xs font-bold text-amber-400 tracking-wide uppercase">${room.name}</span>
+                    <i class="fa-solid fa-door-closed text-slate-500 text-xs"></i>
+                </div>
+                <div class="space-y-2">
+                    <div>
+                        <label class="block text-[10px] text-slate-400 mb-0.5">Temp (°C)</label>
+                        <input type="number" id="env-temp-${room.id}" placeholder="22" class="w-full px-2.5 py-1 rounded-lg custom-input text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 mb-0.5">Humidity (%)</label>
+                        <input type="number" id="env-rh-${room.id}" placeholder="50" class="w-full px-2.5 py-1 rounded-lg custom-input text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400 mb-0.5">Akses & Kebersihan</label>
+                        <select id="env-clean-${room.id}" class="w-full px-2 py-1 rounded-lg custom-input text-[11px]">
+                            <option value="Clean & Closed">Bersih & Pintu Tertutup</option>
+                            <option value="Needs Cleaning">Perlu Pembersihan</option>
+                            <option value="Door Open">Pintu Terbuka</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            roomsContainer.appendChild(card);
         });
 
-    });
+        function saveData() {
+            alert("Data checklist berhasil disimpan ke memori lokal.");
+        }
 
+        function exportData() {
+            const dateStr = document.getElementById("insp-date").value || new Date().toISOString().slice(0, 10);
+            const shift = document.getElementById("insp-shift").value;
+            const inspector = document.getElementById("insp-name").value || "-";
 
+            const wb = XLSX.utils.book_new();
+            const ws = {};
 
-    // Kolom Separator Grey
+            const setCell = (r, c, val, style = {}) => {
+                const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
+                ws[cellRef] = { v: val, t: typeof val === 'number' ? 'n' : 's', s: style };
+            };
 
-    setCell(6, 15, "", { fill: fillSeparator });
-    setCell(36,16, "", { fill: fillSeparator });
-    setCell(36,17, "", { fill: fillSeparator });
+            // Style Definitions
+            const fontTitle = { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFF" } };
+            const fontMeta = { name: "Calibri", sz: 10, bold: true, color: { rgb: "374151" } };
+            const fontHeaderSec = { name: "Calibri", sz: 11, bold: true, color: { rgb: "1F2937" } };
+            const fontHeaderVert = { name: "Calibri", sz: 9, bold: true, color: { rgb: "1F2937" } };
+            const fontHeaderNorm = { name: "Calibri", sz: 10, bold: true, color: { rgb: "1F2937" } };
+            const fontData = { name: "Calibri", sz: 10, color: { rgb: "111827" } };
+            const fontDataBold = { name: "Calibri", sz: 10, bold: true, color: { rgb: "111827" } };
 
+            const fillCtrlHeader = { fgColor: { rgb: "FFFFFF" } }; 
+            const filldarkblue = { fgColor: { rgb: "1F4E79" } };
+            const fillsoftblue = { fgColor: { rgb: "2E75B6" } };
+            const fillEnvHeader = { fgColor: { rgb: "E2EFDA" } };  
+            const fillSeparator = { fgColor: { rgb: "9CA3AF" } };  
 
+            const thinBorder = {
+                top: { style: "thin", color: { rgb: "E5E7EB" } },
+                bottom: { style: "thin", color: { rgb: "E5E7EB" } },
+                left: { style: "thin", color: { rgb: "E5E7EB" } },
+                right: { style: "thin", color: { rgb: "E5E7EB" } }
+            };
 
-    // Header OLM
+            // --- METADATA HEADER ---
+            setCell(0, 0, "AUTOMATION DAILY CHECKLIST", { font: fontTitle, alignment: { horizontal: "center", vertical: "center" }, fill: filldarkblue });
+            setCell(1, 0, "Equipment & Environment Monitoring System", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "center", vertical: "center" }, fill: fillsoftblue });
 
-    setCell(6, 16, "OLM Node", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" } });
+            setCell(3, 0, "Date:", { font: fontMeta });
+            setCell(3, 1, dateStr, { font: fontData });
+            setCell(3, 5, "Shift:", { font: fontMeta });
+            setCell(3, 6, shift, { font: fontData });
+            setCell(3, 11, "Inspector:", { font: fontMeta });
+            setCell(3, 12, inspector, { font: fontData });
 
-    setCell(6, 17, "Status", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" } });
+            // --- BARIS 5: HEADER SECTION ---
+            setCell(5, 0, "CONTROLLERS SYSTEM INSPECTION", { font: fontHeaderSec, alignment: { horizontal: "center", vertical: "center" } });
+            setCell(5, 15, "", { fill: fillSeparator });
+            setCell(5, 16, "PROFIBUS OLM FAULTS", { font: fontHeaderSec, alignment: { horizontal: "center", vertical: "center" } });
 
-
-
-    // --- ISI DATA TABEL (SIDE BY SIDE) ---
-
-    const maxRows = Math.max(controllers.length, olmNodes.length);
-
-
-
-    for (let i = 0; i < maxRows; i++) {
-
-        const r = 7 + i;
-
-
-
-        // Data Controller
-
-        if (i < controllers.length) {
-
-            const ctrl = controllers[i];
-
-            const cVals = [
-
-                ctrl,
-
-                document.getElementById(`${ctrl}-status`).value,
-
-                document.getElementById(`${ctrl}-act-fault`).value || 'None',
-
-                document.getElementById(`${ctrl}-hw-fault`).value || 'None',
-
-                Number(document.getElementById(`${ctrl}-cpu-load`).value) || 0,
-
-                Number(document.getElementById(`${ctrl}-cpu-temp`).value) || 0,
-
-                document.getElementById(`${ctrl}-role`).value,
-
-                document.getElementById(`${ctrl}-func-redundant`).value,
-
-                document.getElementById(`${ctrl}-sysbus-state`).value,
-
-                document.getElementById(`${ctrl}-sysbus-red-state`).value,
-
-                document.getElementById(`${ctrl}-update-bus`).value,
-
-                Number(document.getElementById(`${ctrl}-own-fieldbus`).value) || 0,
-
-                Number(document.getElementById(`${ctrl}-red-fieldbus`).value) || 0,
-
-                document.getElementById(`${ctrl}-fbc02`).value,
-
-                document.getElementById(`${ctrl}-fbc03`).value
-
+            // --- BARIS 6: HEADER TABEL CONTROLLER & OLM ---
+            const ctrlHeaders = [
+                "Controller", "Status", "Active Fault", "HW Faults", "CPU Load (%)", "CPU Temp (°C)",
+                "Role of Activity", "Funct. of Redundant Node", "Sys. Bus Conn. State",
+                "Sys. Bus Conn. State (Red. Machine)", "Update Bus Conn. to Red. Node",
+                "Oper. Numb. Own Field Bus", "Oper. Numb. Red. Field Bus", "FBC02 Status", "FBC03 Status"
             ];
 
-
-
-            cVals.forEach((val, colIdx) => {
-
-                const align = [1, 6, 7, 8, 9, 10, 13, 14].includes(colIdx) ? "center" : ([4, 5, 11, 12].includes(colIdx) ? "right" : "left");
-
-                setCell(r, colIdx, val, {
-
-                    font: colIdx === 0 ? fontDataBold : fontData,
-
-                    border: thinBorder,
-
-                    alignment: { horizontal: align, vertical: "center" }
-
+            ctrlHeaders.forEach((text, colIdx) => {
+                setCell(6, colIdx, text, {
+                    font: fontHeaderVert,
+                    fill: fillCtrlHeader,
+                    alignment: { horizontal: "left", vertical: "center", textRotation: 90, wrapText: true }
                 });
-
             });
 
-        } else {
+            setCell(6, 15, "", { fill: fillSeparator });
 
-            for (let c = 0; c < 15; c++) setCell(r, c, "", { border: thinBorder });
+            setCell(6, 16, "OLM Node", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" } });
+            setCell(6, 17, "Status", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" } });
 
+            // --- ISI DATA TABEL (SIDE BY SIDE CONTROLLERS & OLM) ---
+            const maxRows = Math.max(controllers.length, olmNodes.length);
+
+            for (let i = 0; i < maxRows; i++) {
+                const r = 7 + i;
+
+                if (i < controllers.length) {
+                    const ctrl = controllers[i];
+                    const cVals = [
+                        ctrl,
+                        document.getElementById(`${ctrl}-status`).value,
+                        document.getElementById(`${ctrl}-act-fault`).value || 'None',
+                        document.getElementById(`${ctrl}-hw-fault`).value || 'None',
+                        Number(document.getElementById(`${ctrl}-cpu-load`).value) || 0,
+                        Number(document.getElementById(`${ctrl}-cpu-temp`).value) || 0,
+                        document.getElementById(`${ctrl}-role`).value,
+                        document.getElementById(`${ctrl}-func-redundant`).value,
+                        document.getElementById(`${ctrl}-sysbus-state`).value,
+                        document.getElementById(`${ctrl}-sysbus-red-state`).value,
+                        document.getElementById(`${ctrl}-update-bus`).value,
+                        Number(document.getElementById(`${ctrl}-own-fieldbus`).value) || 0,
+                        Number(document.getElementById(`${ctrl}-red-fieldbus`).value) || 0,
+                        document.getElementById(`${ctrl}-fbc02`).value,
+                        document.getElementById(`${ctrl}-fbc03`).value
+                    ];
+
+                    cVals.forEach((val, colIdx) => {
+                        const align = [1, 6, 7, 8, 9, 10, 13, 14].includes(colIdx) ? "center" : ([4, 5, 11, 12].includes(colIdx) ? "right" : "left");
+                        setCell(r, colIdx, val, {
+                            font: colIdx === 0 ? fontDataBold : fontData,
+                            border: thinBorder,
+                            alignment: { horizontal: align, vertical: "center" }
+                        });
+                    });
+                } else {
+                    for (let c = 0; c < 15; c++) setCell(r, c, "", { border: thinBorder });
+                }
+
+                setCell(r, 15, "", { fill: fillSeparator });
+
+                if (i < olmNodes.length) {
+                    const olm = olmNodes[i];
+                    const olmStatus = document.getElementById(`olm-${olm}`).value;
+
+                    setCell(r, 16, olm, { font: fontDataBold, border: thinBorder, alignment: { horizontal: "left", vertical: "center" } });
+                    setCell(r, 17, olmStatus, { font: fontData, border: thinBorder, alignment: { horizontal: "center", vertical: "center" } });
+                } else {
+                    setCell(r, 16, "", { border: thinBorder });
+                    setCell(r, 17, "", { border: thinBorder });
+                }
+            }
+
+            // --- TABEL ENVIRONMENT (6 ROOMS) & POWER SYSTEM ---
+            const envStartRow = 7 + maxRows + 2;
+
+            setCell(envStartRow, 0, "ENVIRONMENT & POWER SYSTEM INSPECTION", { font: fontHeaderSec, fill: fillEnvHeader, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
+
+            // Header Tabel Environment 6 Ruangan
+            setCell(envStartRow + 1, 0, "Room Name", { font: fontHeaderNorm, alignment: { horizontal: "left", vertical: "center" }, fill: fillEnvHeader });
+            setCell(envStartRow + 1, 1, "Temp (°C)", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" }, fill: fillEnvHeader });
+            setCell(envStartRow + 1, 2, "RH (%)", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" }, fill: fillEnvHeader });
+            setCell(envStartRow + 1, 3, "Cleanliness & Access Status", { font: fontHeaderNorm, alignment: { horizontal: "left", vertical: "center" }, fill: fillEnvHeader });
+
+            // Header Tabel Power System & Cabinet (Ditaruh di sebelah kanan kolom 5 & 6)
+            setCell(envStartRow + 1, 5, "Power & Cabinet System", { font: fontHeaderNorm, alignment: { horizontal: "left", vertical: "center" }, fill: fillEnvHeader });
+            setCell(envStartRow + 1, 6, "Status / Value", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" }, fill: fillEnvHeader });
+
+            // Menulis Data 6 Ruangan
+            rackRooms.forEach((room, idx) => {
+                const rEnv = envStartRow + 2 + idx;
+                const tempVal = Number(document.getElementById(`env-temp-${room.id}`).value) || 0;
+                const rhVal = Number(document.getElementById(`env-rh-${room.id}`).value) || 0;
+                const cleanVal = document.getElementById(`env-clean-${room.id}`).value;
+
+                setCell(rEnv, 0, room.name, { font: fontDataBold, border: thinBorder });
+                setCell(rEnv, 1, tempVal, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+                setCell(rEnv, 2, rhVal, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+                setCell(rEnv, 3, cleanVal, { font: fontData, border: thinBorder, alignment: { horizontal: "left" } });
+            });
+
+            // Menulis Data Power System & Cabinet
+            const powerData = [
+                ["UPS Status", document.getElementById("ups-status").value],
+                ["Cabinet Condition", document.getElementById("cabinet-status").value]
+            ];
+
+            powerData.forEach((p, idx) => {
+                const rPower = envStartRow + 2 + idx;
+                setCell(rPower, 5, p[0], { font: fontData, border: thinBorder });
+                setCell(rPower, 6, p[1], { font: fontDataBold, border: thinBorder, alignment: { horizontal: "center" } });
+            });
+
+            // --- MERGES, ROW HEIGHTS, & COL WIDTHS ---
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 17 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 17 } },
+                { s: { r: 5, c: 0 }, e: { r: 5, c: 14 } },
+                { s: { r: 5, c: 16 }, e: { r: 5, c: 17 } },
+                { s: { r: envStartRow, c: 0 }, e: { r: envStartRow, c: 17 } },
+            ];
+
+            ws['!rows'] = [];
+            ws['!rows'][5] = { hpt: 24 };
+            ws['!rows'][6] = { hpt: 110 };
+            ws['!rows'][envStartRow] = { hpt: 24 };
+
+            ws['!cols'] = [
+                { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 4 }, 
+                { wch: 22 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, 
+                { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, 
+                { wch: 4 },  { wch: 16 }, { wch: 14 }
+            ];
+
+            const maxExportRow = envStartRow + 2 + Math.max(rackRooms.length, powerData.length);
+            ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: maxExportRow, c: 17 } });
+
+            XLSX.utils.book_append_sheet(wb, ws, "Checklist");
+            XLSX.writeFile(wb, `Full_Automation_Checklist_${dateStr}.xlsx`);
         }
-
-
-
-        // Kolom Separator Abu-abu
-
-        setCell(r, 15, "", { fill: fillSeparator });
-
-
-
-        // Data OLM
-
-        if (i < olmNodes.length) {
-
-            const olm = olmNodes[i];
-
-            const olmStatus = document.getElementById(`olm-${olm}`).value;
-
-
-
-            setCell(r, 16, olm, { font: fontDataBold, border: thinBorder, alignment: { horizontal: "left", vertical: "center" } });
-
-            setCell(r, 17, olmStatus, { font: fontData, border: thinBorder, alignment: { horizontal: "center", vertical: "center" } });
-
-        } else {
-
-            setCell(r, 16, "", { border: thinBorder });
-
-            setCell(r, 17, "", { border: thinBorder });
-
-        }
-
-    }
-
-
-
-    // --- TABEL ENVIRONMENT & POWER SYSTEM ---
-
-    const envStartRow = 7 + maxRows + 2;
-
-
-
-    setCell(envStartRow, 0, "ENVIRONMENT & POWER SYSTEM INSPECTION", { font: fontHeaderSec, fill: fillEnvHeader, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
-
-
-
-    setCell(envStartRow + 1, 0, "Rack Room Environment", { font: fontHeaderNorm, alignment: { horizontal: "left", vertical: "center" } });
-
-    setCell(envStartRow + 1, 1, "Status / Value", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" } });
-
-    setCell(envStartRow + 1, 3, "Power System & Cabinet", { font: fontHeaderNorm, alignment: { horizontal: "left", vertical: "center" } });
-
-    setCell(envStartRow + 1, 4, "Status / Value", { font: fontHeaderNorm, alignment: { horizontal: "center", vertical: "center" } });
-
-
-
-    const envData1 = [
-
-        ["Room Temperature (°C)", Number(document.getElementById("env-temp").value) || 0],
-
-        ["Relative Humidity (%)", Number(document.getElementById("env-rh").value) || 0],
-
-        ["Room Cleanliness & Access", document.getElementById("env-clean").value]
-
-    ];
-
-
-
-    const envData2 = [
-
-        ["UPS Status", document.getElementById("ups-status").value],
-
-        ["Cabinet Condition", document.getElementById("cabinet-status").value]
-
-    ];
-
-
-
-    for (let idx = 0; idx < 3; idx++) {
-
-        const rEnv = envStartRow + 2 + idx;
-
-        if (envData1[idx]) {
-
-            setCell(rEnv, 0, envData1[idx][0], { font: fontData, border: thinBorder });
-
-            setCell(rEnv, 1, envData1[idx][1], { font: fontDataBold, border: thinBorder, alignment: { horizontal: "center" } });
-
-        }
-
-        if (envData2[idx]) {
-
-            setCell(rEnv, 3, envData2[idx][0], { font: fontData, border: thinBorder });
-
-            setCell(rEnv, 4, envData2[idx][1], { font: fontDataBold, border: thinBorder, alignment: { horizontal: "center" } });
-
-        }
-
-    }
-
-
-
-    // --- KONFIGURASI MERGE, ROW HEIGHT, & COLUMN WIDTH ---
-
-    ws['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 17 } },
-
-        { s: { r: 1, c: 0 }, e: { r: 1, c: 17 } },
-
-        { s: { r: 5, c: 0 }, e: { r: 5, c: 14 } },  // Merge Header Controller Section
-
-        { s: { r: 5, c: 16 }, e: { r: 5, c: 17 } }, // Merge Header OLM Section
-
-        { s: { r: envStartRow, c: 0 }, e: { r: envStartRow, c: 17 } }, // Merge Header Environment Section
-
-    ];
-
-
-
-    // Tinggi Baris (Row Heights)
-
-    ws['!rows'] = [];
-
-    ws['!rows'][5] = { hpt: 24 };  // Baris Header Seksi
-
-    ws['!rows'][6] = { hpt: 110 }; // Baris Header Vertikal Controller
-
-    ws['!rows'][envStartRow] = { hpt: 24 };
-
-
-
-    // Lebar Kolom (Column Widths)
-
-    ws['!cols'] = [
-
-        { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 14 },
-
-        { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
-
-        { wch: 12 },
-
-        { wch: 4 },  // Kolom P: Pembatas Abu-abu (Lebar Kecil)
-
-        { wch: 16 }, { wch: 14 }
-
-    ];
-
-
-
-    // Set Ref Sheet Boundary
-
-    const maxExportRow = envStartRow + 5;
-
-    ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: maxExportRow, c: 17 } });
-
-
-
-    // Download File Excel
-
-    XLSX.utils.book_append_sheet(wb, ws, "Checklist");
-
-    XLSX.writeFile(wb, `Full_Automation_Checklist_${dateStr}.xlsx`);
-
-}
-
     </script>
-
 </body>
-
 </html>
