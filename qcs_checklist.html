@@ -6,19 +6,17 @@
   <title>QCS & Profiler Daily Checklist</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <style>
     body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
     .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
     .custom-input { background: #0f172a; border: 1px solid #334155; color: #f8fafc; transition: all 0.2s; }
     .custom-input:focus { border-color: #06b6d4; outline: none; box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2); }
-    
-    .sticky-header-th {
-      position: sticky;
-      top: 0;
-      background-color: #1e293b;
-      z-index: 20;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
+    .sticky-header-th { position: sticky; top: 0; background-color: #1e293b; z-index: 20; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
   </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen">
@@ -35,7 +33,6 @@
             </div>
         </div>
 
-        <!-- Tombol Aksi & Dropdown Navigasi Halaman -->
         <div class="flex flex-wrap items-center gap-3">
             <div class="relative flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
                 <i class="fa-solid fa-compass text-slate-400 pl-2"></i>
@@ -45,11 +42,13 @@
                 </select>
             </div>
 
+            <!-- Tombol Simpan Online -->
             <button onclick="saveData()" class="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-cyan-600/20">
-                <i class="fa-solid fa-floppy-disk"></i> Simpan Data
+                <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Online
             </button>
+            <!-- Tombol Export Excel -->
             <button onclick="exportData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-medium border border-slate-700 transition flex items-center gap-2">
-                <i class="fa-solid fa-file-export text-cyan-400"></i> Export Excel
+                <i class="fa-solid fa-file-export"></i> Export Excel
             </button>
         </div>
     </header>
@@ -81,11 +80,7 @@
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                     <i class="fa-solid fa-print text-cyan-400"></i> 1. Scanner Sensor Status
                 </h2>
-                <span class="text-xs text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Temp Alarm Limit: > 55°C
-                </span>
             </div>
-
             <div class="overflow-x-auto border border-slate-800 rounded-xl">
                 <table class="w-full text-left text-xs whitespace-nowrap">
                     <thead>
@@ -100,181 +95,42 @@
                             <th class="py-3 px-3 sticky-header-th">PD</th>
                         </tr>
                     </thead>
-                    <tbody id="scanner-sensors-body" class="divide-y divide-slate-800/50">
-                        <!-- Dynamic generated rows for Sensors -->
-                    </tbody>
+                    <tbody id="scanner-sensors-body" class="divide-y divide-slate-800/50"></tbody>
                 </table>
-            </div>
-
-            <!-- Frame Mechanical & Utility Check Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-800/80">
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs text-slate-400 mb-1">Main Air Pressure (Mpa)</label>
-                    <input type="number" step="0.01" id="main-air-press" placeholder="0.5" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs text-slate-400 mb-1">Cooling Water Lvl / Tmp (°C)</label>
-                    <input type="text" id="colg-wtr-lvl-tmp" placeholder="30 ~ 35 °C" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs text-slate-400 mb-1">Power Supply</label>
-                    <select id="power-supply-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
-                        <option value="OK">OK</option>
-                        <option value="NOT OK">NOT OK</option>
-                    </select>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs text-slate-400 mb-1">Drive Motor (Inv)</label>
-                    <select id="drive-motor-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
-                        <option value="OK">OK (No Fault)</option>
-                        <option value="NOT OK">NOT OK</option>
-                    </select>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs text-slate-400 mb-1">Motor & Fan</label>
-                    <select id="motor-fan-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
-                        <option value="OK">OK (No Noise)</option>
-                        <option value="NOT OK">NOT OK</option>
-                    </select>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs text-slate-400 mb-1">Timing Belt</label>
-                    <select id="timing-belt-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
-                        <option value="OK">OK (No Crack)</option>
-                        <option value="NOT OK">NOT OK</option>
-                    </select>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs text-slate-400 mb-1">Shaft & Pulley</label>
-                    <select id="shaft-pulley-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
-                        <option value="OK">OK (No Noise)</option>
-                        <option value="NOT OK">NOT OK</option>
-                    </select>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <label class="block text-xs text-slate-400 mb-1">Air Blower</label>
-                    <select id="air-blower-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
-                        <option value="OK">OK</option>
-                        <option value="NOT OK">NOT OK</option>
-                    </select>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-xs text-slate-400 mb-1">**Abnormal Note (Scanner System)</label>
-                <textarea id="scanner-abnormal" rows="2" placeholder="Catatan kejanggalan / perbaikan..." class="w-full p-2.5 custom-input rounded-xl text-xs"></textarea>
-            </div>
-        </div>
-
-        <!-- Section 2: Profiler -->
-        <div class="glass-card p-6 rounded-2xl space-y-4">
-            <h2 class="text-lg font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
-                <i class="fa-solid fa-sliders text-cyan-400"></i> 2. Profiler System Inspection
-            </h2>
-
-            <div class="overflow-x-auto border border-slate-800 rounded-xl">
-                <table class="w-full text-left text-xs whitespace-nowrap">
-                    <thead>
-                        <tr class="text-slate-400 uppercase font-semibold text-center">
-                            <th class="py-3 px-4 text-left sticky-header-th">Parameter</th>
-                            <th class="py-3 px-3 sticky-header-th">C.Weight 1</th>
-                            <th class="py-3 px-3 sticky-header-th">C.Weight 2</th>
-                            <th class="py-3 px-3 sticky-header-th">C.Weight 3</th>
-                            <th class="py-3 px-3 sticky-header-th">C.Weight 4</th>
-                            <th class="py-3 px-3 sticky-header-th">Steam Box 1</th>
-                            <th class="py-3 px-3 sticky-header-th">Steam Box 2</th>
-                            <th class="py-3 px-3 sticky-header-th">IQ Dilution</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-800/50">
-                        <tr>
-                            <td class="py-3 px-4 font-semibold text-cyan-400">Power Supply</td>
-                            <script>
-                                for(let i=1; i<=7; i++) {
-                                    document.write(`<td class="py-2 px-2 text-center"><select id="prof-ps-${i}" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="NOT OK">NOT OK</option></select></td>`);
-                                }
-                            </script>
-                        </tr>
-                        <tr>
-                            <td class="py-3 px-4 font-semibold text-cyan-400">Air Pressure (Bar)</td>
-                            <script>
-                                for(let i=1; i<=7; i++) {
-                                    document.write(`<td class="py-2 px-2 text-center"><input type="number" step="0.1" id="prof-press-${i}" placeholder="Bar" class="custom-input px-2 py-1 rounded-lg text-xs w-20 text-center"></td>`);
-                                }
-                            </script>
-                        </tr>
-                        <tr>
-                            <td class="py-3 px-4 font-semibold text-cyan-400">Air Purging (Bar)</td>
-                            <script>
-                                for(let i=1; i<=7; i++) {
-                                    document.write(`<td class="py-2 px-2 text-center"><input type="number" step="0.1" id="prof-purge-${i}" placeholder="Bar" class="custom-input px-2 py-1 rounded-lg text-xs w-20 text-center"></td>`);
-                                }
-                            </script>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div>
-                <label class="block text-xs text-slate-400 mb-1">**Abnormal Note (Profiler System)</label>
-                <textarea id="profiler-abnormal" rows="2" placeholder="Catatan kejanggalan profiler..." class="w-full p-2.5 custom-input rounded-xl text-xs"></textarea>
-            </div>
-        </div>
-
-        <!-- Section 3: Paper Production & Cleaning Sensor -->
-        <div class="glass-card p-6 rounded-2xl space-y-4">
-            <h2 class="text-lg font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
-                <i class="fa-solid fa-broom text-cyan-400"></i> 3. Paper Production And Cleaning Sensor
-            </h2>
-
-            <div class="overflow-x-auto border border-slate-800 rounded-xl">
-                <table class="w-full text-left text-xs whitespace-nowrap">
-                    <thead>
-                        <tr class="text-slate-400 uppercase font-semibold text-center">
-                            <th class="py-3 px-3 text-left sticky-header-th">Time</th>
-                            <th class="py-3 px-3 sticky-header-th">Paper Grade (gsm)</th>
-                            <th class="py-3 px-3 sticky-header-th">RL</th>
-                            <th class="py-3 px-3 sticky-header-th">C3</th>
-                            <th class="py-3 px-3 sticky-header-th">C2</th>
-                            <th class="py-3 px-3 sticky-header-th">C1</th>
-                            <th class="py-3 px-3 sticky-header-th">CO</th>
-                            <th class="py-3 px-3 sticky-header-th">SP</th>
-                            <th class="py-3 px-3 sticky-header-th">PD</th>
-                            <th class="py-3 px-3 text-left sticky-header-th">Cleaning By</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cleaning-sensor-body" class="divide-y divide-slate-800/50">
-                        <!-- Dynamic generated rows for Cleaning -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div>
-                <label class="block text-xs text-slate-400 mb-1">**Abnormal Note (Cleaning & Production)</label>
-                <textarea id="cleaning-abnormal" rows="2" placeholder="Catatan pembersihan..." class="w-full p-2.5 custom-input rounded-xl text-xs"></textarea>
             </div>
         </div>
     </main>
 
-    <!-- Library Excel & Style Included -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <!-- SheetJS Library untuk Export Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <script>
-        document.getElementById('qcs-date').valueAsDate = new Date();
+        // Config Firebase Realtime Database
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        const sensorList = [
-            "Basis Weight", "Moisture", "Ash", "Thickness", "Coater Weight", 
-            "Top Orientation", "Bottom Orientation", "Formation", 
-            "Top Color", "Bottom Color", "Gloss", "Surface"
-        ];
+        function getOperationalDate() {
+            const now = new Date();
+            if (now.getHours() < 8) now.setDate(now.getDate() - 1);
+            return now.toISOString().split('T')[0];
+        }
 
+        // Render Dynamic Rows
+        const sensorList = ["Basis Weight", "Moisture", "Ash", "Thickness", "Coater Weight", "Top Orientation", "Bottom Orientation", "Formation", "Top Color", "Bottom Color", "Gloss", "Surface"];
         const scannerFrames = ["RL", "C3", "C2", "C1", "CO", "SP", "PD"];
-
-        // 1. Render Scanner Sensor Status Table
         const sensorBody = document.getElementById('scanner-sensors-body');
+
         sensorList.forEach(sensor => {
             const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-800/30 transition";
-            
             let html = `<td class="py-2.5 px-3 font-semibold text-slate-200 text-left">${sensor}</td>`;
             scannerFrames.forEach(frame => {
                 const idPrefix = `sensor-${sensor.replace(/\s+/g, '').toLowerCase()}-${frame.toLowerCase()}`;
@@ -291,247 +147,96 @@
             sensorBody.appendChild(tr);
         });
 
-        // 3. Render Cleaning Sensor Rows
-        const cleaningBody = document.getElementById('cleaning-sensor-body');
-        const defaultTimes = ["07:00", "15:00", "23:00"];
-        defaultTimes.forEach((time, index) => {
-            const tr = document.createElement('tr');
-            tr.className = "hover:bg-slate-800/30 transition";
-            
-            let html = `
-                <td class="py-2 px-3"><input type="time" value="${time}" id="clean-time-${index}" class="custom-input px-2 py-1 rounded-lg text-xs"></td>
-                <td class="py-2 px-3 text-center"><input type="text" placeholder="gsm" id="clean-gsm-${index}" class="custom-input px-2 py-1 rounded-lg text-xs w-20 text-center"></td>
-            `;
-            
-            scannerFrames.forEach(frame => {
-                html += `
-                    <td class="py-2 px-2 text-center">
-                        <input type="checkbox" id="clean-chk-${index}-${frame.toLowerCase()}" class="w-4 h-4 accent-cyan-500 rounded cursor-pointer">
-                    </td>
-                `;
+        // 1. FUNGSI SIMPAN DATA KE FIREBASE
+        function saveData() {
+            const opDate = getOperationalDate();
+            const formData = {};
+            document.querySelectorAll('input, select, textarea').forEach(input => {
+                if (input.id) {
+                    formData[input.id] = input.type === 'checkbox' ? input.checked : input.value;
+                }
             });
 
-            html += `<td class="py-2 px-3"><input type="text" placeholder="Nama Operator" id="clean-by-${index}" class="custom-input px-2 py-1 rounded-lg text-xs w-32"></td>`;
-            tr.innerHTML = html;
-            cleaningBody.appendChild(tr);
-        });
-
-        // URL Web App dari Google Apps Script yang di-deploy
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx.../exec";
-
-function saveData() {
-    const opDate = getOperationalDate();
-    const formData = {};
-    document.querySelectorAll('input, select, textarea').forEach(input => {
-        if (input.id) {
-            formData[input.id] = input.type === 'checkbox' ? input.checked : input.value;
+            db.ref('qcs_checklist_active').set({
+                saveDate: opDate,
+                timestamp: new Date().toISOString(),
+                data: formData
+            }).then(() => {
+                alert("Data QCS berhasil tersimpan ke Cloud!");
+            });
         }
-    });
 
-    const payload = {
-        saveDate: opDate,
-        timestamp: new Date().toISOString(),
-        data: formData
-    };
+        // 2. FUNGSI REALTIME SYNC & RESET JAM 8 PAGI
+        function listenToOnlineData() {
+            const currentOpDate = getOperationalDate();
+            db.ref('qcs_checklist_active').on('value', (snapshot) => {
+                const result = snapshot.val();
+                if (!result) return;
 
-    // 1. Simpan ke Firebase (Real-time Multi-device)
-    db.ref('qcs_checklist_active').set(payload);
+                // Reset jika data dari sebelum jam 8 pagi ini
+                if (result.saveDate !== currentOpDate) {
+                    resetFormInputs();
+                    return;
+                }
 
-    // 2. Kirim ke Google Apps Script (Siap di-backup otomatis ke Drive jam 8 pagi)
-    fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    }).then(() => {
-        alert("Data berhasil tersimpan! Laporan akan di-upload otomatis ke Google Drive setiap jam 8 pagi.");
-    });
-}
+                // Sync data ke layar
+                if (result.data) {
+                    Object.keys(result.data).forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            if (el.type === 'checkbox') el.checked = result.data[id];
+                            else el.value = result.data[id];
+                        }
+                    });
+                }
+            });
+        }
 
-        // FUNGSI EXPORT EXCEL PENUH
+        function resetFormInputs() {
+            document.querySelectorAll('input, select, textarea').forEach(input => {
+                if (input.type === 'checkbox') input.checked = false;
+                else if (input.type === 'date') input.valueAsDate = new Date();
+                else if (input.tagName === 'SELECT') input.selectedIndex = 0;
+                else input.value = '';
+            });
+        }
+
+        // 3. FUNGSI EXPORT EXCEL (TETAP BERJALAN DENGAN BAIK)
         function exportData() {
-            const dateStr = document.getElementById("qcs-date").value || new Date().toISOString().slice(0, 10);
+            const dateStr = document.getElementById("qcs-date").value || getOperationalDate();
             const shift = document.getElementById("qcs-shift").value;
             const inspector = document.getElementById("qcs-inspector").value || "-";
 
             const wb = XLSX.utils.book_new();
-            const ws = {};
+            const wsData = [
+                ["QCS & PROFILER MAINTENANCE DAILY CHECKLIST"],
+                ["Date:", dateStr, "Shift:", shift, "Inspector:", inspector],
+                []
+            ];
 
-            const setCell = (r, c, val, style = {}) => {
-                const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
-                ws[cellRef] = { v: val, t: typeof val === 'number' ? 'n' : 's', s: style };
-            };
+            // Header Tabel Scanner Sensor
+            wsData.push(["Sensor Type", "RL SH/DH", "C3 SH/DH", "C2 SH/DH", "C1 SH/DH", "CO SH/DH", "SP SH/DH", "PD SH/DH"]);
 
-            // Formatting Styles
-            const fontTitle = { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFF" } };
-            const fontMeta = { name: "Calibri", sz: 10, bold: true, color: { rgb: "374151" } };
-            const fontHeaderSec = { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFF" } };
-            const fontHeaderNorm = { name: "Calibri", sz: 10, bold: true, color: { rgb: "1F2937" } };
-            const fontData = { name: "Calibri", sz: 10, color: { rgb: "111827" } };
-            const fontDataBold = { name: "Calibri", sz: 10, bold: true, color: { rgb: "111827" } };
-
-            const fillHeaderMain = { fgColor: { rgb: "0891B2" } }; // Cyan-600
-            const fillSubHeader = { fgColor: { rgb: "0E7490" } };  // Cyan-700
-            const fillTableHead = { fgColor: { rgb: "E0F2FE" } };  // Light Cyan
-            const thinBorder = {
-                top: { style: "thin", color: { rgb: "D1D5DB" } },
-                bottom: { style: "thin", color: { rgb: "D1D5DB" } },
-                left: { style: "thin", color: { rgb: "D1D5DB" } },
-                right: { style: "thin", color: { rgb: "D1D5DB" } }
-            };
-
-            // Title Block
-            setCell(0, 0, "QCS & PROFILER MAINTENANCE DAILY CHECKLIST", { font: fontTitle, alignment: { horizontal: "center", vertical: "center" }, fill: fillHeaderMain });
-            setCell(1, 0, "Expert Manager Maintenance Daily System", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "center", vertical: "center" }, fill: fillSubHeader });
-
-            // Meta Info
-            setCell(3, 0, "Date:", { font: fontMeta });
-            setCell(3, 1, dateStr, { font: fontData });
-            setCell(3, 3, "Shift:", { font: fontMeta });
-            setCell(3, 4, shift, { font: fontData });
-            setCell(3, 7, "Inspector:", { font: fontMeta });
-            setCell(3, 8, inspector, { font: fontData });
-
-            // Section 1: Scanner Sensors
-            setCell(5, 0, "1. SCANNER SENSOR STATUS (Temp Alarm Limit: > 55°C)", { font: fontHeaderSec, fill: fillHeaderMain, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
-            
-            // Scanner Header Row 1
-            setCell(6, 0, "Sensor Name", { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center", vertical: "center" } });
-            scannerFrames.forEach((frame, idx) => {
-                setCell(6, 1 + (idx * 2), frame, { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center", vertical: "center" } });
-                setCell(6, 2 + (idx * 2), "", { fill: fillTableHead, border: thinBorder });
-            });
-
-            // Scanner Header Row 2 (SH / DH)
-            setCell(7, 0, "", { fill: fillTableHead, border: thinBorder });
-            scannerFrames.forEach((_, idx) => {
-                setCell(7, 1 + (idx * 2), "SH Temp", { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center" } });
-                setCell(7, 2 + (idx * 2), "DH Temp", { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center" } });
-            });
-
-            // Scanner Data Rows
-            let currRow = 8;
             sensorList.forEach(sensor => {
-                setCell(currRow, 0, sensor, { font: fontDataBold, border: thinBorder });
-                scannerFrames.forEach((frame, idx) => {
+                const row = [sensor];
+                scannerFrames.forEach(frame => {
                     const idPrefix = `sensor-${sensor.replace(/\s+/g, '').toLowerCase()}-${frame.toLowerCase()}`;
-                    const shVal = Number(document.getElementById(`${idPrefix}-sh`)?.value) || 0;
-                    const dhVal = Number(document.getElementById(`${idPrefix}-dh`)?.value) || 0;
-
-                    setCell(currRow, 1 + (idx * 2), shVal, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
-                    setCell(currRow, 2 + (idx * 2), dhVal, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+                    const shVal = document.getElementById(`${idPrefix}-sh`)?.value || "-";
+                    const dhVal = document.getElementById(`${idPrefix}-dh`)?.value || "-";
+                    row.push(`${shVal} / ${dhVal}`);
                 });
-                currRow++;
+                wsData.push(row);
             });
 
-            // Mechanical Utility Inputs
-            setCell(currRow + 1, 0, "Main Air Press (Mpa):", { font: fontDataBold });
-            setCell(currRow + 1, 1, Number(document.getElementById("main-air-press").value) || 0, { font: fontData, border: thinBorder });
-            setCell(currRow + 1, 3, "Cooling Water Lvl/Tmp:", { font: fontDataBold });
-            setCell(currRow + 1, 4, document.getElementById("colg-wtr-lvl-tmp").value || "-", { font: fontData, border: thinBorder });
-            setCell(currRow + 1, 6, "Power Supply:", { font: fontDataBold });
-            setCell(currRow + 1, 7, document.getElementById("power-supply-status").value, { font: fontData, border: thinBorder });
-            
-            setCell(currRow + 2, 0, "Drive Motor (Inv):", { font: fontDataBold });
-            setCell(currRow + 2, 1, document.getElementById("drive-motor-status").value, { font: fontData, border: thinBorder });
-            setCell(currRow + 2, 3, "Motor & Fan:", { font: fontDataBold });
-            setCell(currRow + 2, 4, document.getElementById("motor-fan-status").value, { font: fontData, border: thinBorder });
-            setCell(currRow + 2, 6, "Timing Belt:", { font: fontDataBold });
-            setCell(currRow + 2, 7, document.getElementById("timing-belt-status").value, { font: fontData, border: thinBorder });
-            
-            setCell(currRow + 3, 0, "Abnormal Note:", { font: fontDataBold });
-            setCell(currRow + 3, 1, document.getElementById("scanner-abnormal").value || "None", { font: fontData });
-
-            currRow += 5;
-
-            // Section 2: Profiler System
-            setCell(currRow, 0, "2. PROFILER SYSTEM INSPECTION", { font: fontHeaderSec, fill: fillHeaderMain, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
-            currRow++;
-
-            const profHeaders = ["Parameter", "C.Weight 1", "C.Weight 2", "C.Weight 3", "C.Weight 4", "Steam Box 1", "Steam Box 2", "IQ Dilution"];
-            profHeaders.forEach((h, colIdx) => {
-                setCell(currRow, colIdx, h, { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center" } });
-            });
-            currRow++;
-
-            // Power Supply Row
-            setCell(currRow, 0, "Power Supply", { font: fontDataBold, border: thinBorder });
-            for(let i=1; i<=7; i++) {
-                setCell(currRow, i, document.getElementById(`prof-ps-${i}`).value, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
-            }
-            currRow++;
-
-            // Air Pressure Row
-            setCell(currRow, 0, "Air Pressure (Bar)", { font: fontDataBold, border: thinBorder });
-            for(let i=1; i<=7; i++) {
-                setCell(currRow, i, Number(document.getElementById(`prof-press-${i}`).value) || 0, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
-            }
-            currRow++;
-
-            // Air Purging Row
-            setCell(currRow, 0, "Air Purging (Bar)", { font: fontDataBold, border: thinBorder });
-            for(let i=1; i<=7; i++) {
-                setCell(currRow, i, Number(document.getElementById(`prof-purge-${i}`).value) || 0, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
-            }
-            currRow++;
-
-            setCell(currRow, 0, "Abnormal Note:", { font: fontDataBold });
-            setCell(currRow, 1, document.getElementById("profiler-abnormal").value || "None", { font: fontData });
-            currRow += 2;
-
-            // Section 3: Paper Production & Cleaning Sensor
-            setCell(currRow, 0, "3. PAPER PRODUCTION AND CLEANING SENSOR", { font: fontHeaderSec, fill: fillHeaderMain, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
-            currRow++;
-
-            const cleanHeaders = ["Time", "Paper Grade (gsm)", "RL", "C3", "C2", "C1", "CO", "SP", "PD", "Cleaning By"];
-            cleanHeaders.forEach((h, colIdx) => {
-                setCell(currRow, colIdx, h, { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center" } });
-            });
-            currRow++;
-
-            defaultTimes.forEach((_, index) => {
-                const cTime = document.getElementById(`clean-time-${index}`).value;
-                const cGsm = document.getElementById(`clean-gsm-${index}`).value || "-";
-                const cBy = document.getElementById(`clean-by-${index}`).value || "-";
-
-                setCell(currRow, 0, cTime, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
-                setCell(currRow, 1, cGsm, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
-
-                scannerFrames.forEach((frame, idx) => {
-                    const isChecked = document.getElementById(`clean-chk-${index}-${frame.toLowerCase()}`).checked;
-                    setCell(currRow, 2 + idx, isChecked ? "CLEANED" : "-", { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
-                });
-
-                setCell(currRow, 9, cBy, { font: fontData, border: thinBorder, alignment: { horizontal: "left" } });
-                currRow++;
-            });
-
-            setCell(currRow, 0, "Abnormal Note:", { font: fontDataBold });
-            setCell(currRow, 1, document.getElementById("cleaning-abnormal").value || "None", { font: fontData });
-
-            // Merges Configuration
-            ws['!merges'] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } },
-                { s: { r: 1, c: 0 }, e: { r: 1, c: 14 } },
-                { s: { r: 5, c: 0 }, e: { r: 5, c: 14 } },
-                { s: { r: 6, c: 0 }, e: { r: 7, c: 0 } },
-            ];
-
-            // Add merges for Scanner Frame pairs
-            scannerFrames.forEach((_, idx) => {
-                ws['!merges'].push({ s: { r: 6, c: 1 + (idx * 2) }, e: { r: 6, c: 2 + (idx * 2) } });
-            });
-
-            ws['!cols'] = [
-                { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, 
-                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 18 }
-            ];
-
-            ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: currRow + 2, c: 14 } });
-
-            XLSX.utils.book_append_sheet(wb, ws, "QCS Daily Checklist");
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            XLSX.utils.book_append_sheet(wb, ws, "QCS Checklist");
             XLSX.writeFile(wb, `QCS_Checklist_${dateStr}.xlsx`);
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('qcs-date').valueAsDate = new Date();
+            listenToOnlineData();
+        });
     </script>
 </body>
 </html>
