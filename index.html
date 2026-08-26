@@ -14,7 +14,7 @@
     
     .vertical-header {
       writing-mode: vertical-lr;
-      transform: rotate(0deg);
+      transform: rotate(180deg);
       white-space: normal;
       word-wrap: break-word;
       height: 160px;
@@ -30,7 +30,7 @@
     .sticky-header-th {
       position: sticky;
       top: 0;
-      background-color: #1e293b; /* Menutup konten saat di-scroll */
+      background-color: #1e293b;
       z-index: 20;
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
@@ -50,7 +50,7 @@
 </head>
 <body class="p-4 md:p-8 min-h-screen">
 
-    <!-- Header App -->
+    <!-- Header App & Navigasi Dropdown -->
     <header class="max-w-[95%] mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-6 rounded-2xl">
         <div>
             <div class="flex items-center gap-3">
@@ -59,11 +59,22 @@
                 </span>
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-white">Automation Daily Check List</h1>
-                    <p class="text-sm text-slate-400">Equipment & Environment Monitoring System</p>
+                    <p class="text-sm text-slate-400">Equipment & Environment Monitoring System — FORM-CHK-001 REV 02</p>
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-3">
+
+        <!-- Tombol Aksi & Navigasi Dropdown Pojok Kanan Atas -->
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Dropdown Navigasi Halaman -->
+            <div class="relative flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
+                <i class="fa-solid fa-compass text-slate-400 pl-2"></i>
+                <select onchange="location = this.value;" class="bg-transparent text-sm font-semibold text-slate-200 focus:outline-none cursor-pointer pr-2">
+                    <option value="index.html" selected class="bg-slate-900 text-blue-400">🖥️ Automation Daily Checklist</option>
+                    <option value="qcs_checklist.html" class="bg-slate-900 text-slate-200">📄 QCS & Profiler Checklist</option>
+                </select>
+            </div>
+
             <button onclick="saveData()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-blue-600/20">
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Data
             </button>
@@ -94,7 +105,7 @@
             </div>
         </div>
 
-        <!-- Controller Checklist Section (Max Height Scroll Container dengan Sticky Header Table) -->
+        <!-- Controller Checklist Section -->
         <div class="glass-card p-6 rounded-2xl relative">
             <div class="sticky-section-title flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
@@ -475,7 +486,6 @@
                 ws[cellRef] = { v: val, t: typeof val === 'number' ? 'n' : 's', s: style };
             };
 
-            // Style Definitions
             const fontTitle = { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFF" } };
             const fontMeta = { name: "Calibri", sz: 10, bold: true, color: { rgb: "374151" } };
             const fontHeaderSec = { name: "Calibri", sz: 11, bold: true, color: { rgb: "1F2937" } };
@@ -500,7 +510,6 @@
                 right: { style: "thin", color: { rgb: "E5E7EB" } }
             };
 
-            // METADATA HEADER
             setCell(0, 0, "AUTOMATION DAILY CHECKLIST", { font: fontTitle, alignment: { horizontal: "center", vertical: "center" }, fill: filldarkblue });
             setCell(1, 0, "Equipment & Environment Monitoring System", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "center", vertical: "center" }, fill: fillsoftblue });
 
@@ -511,7 +520,6 @@
             setCell(3, 11, "Inspector:", { font: fontMeta });
             setCell(3, 12, inspector, { font: fontData });
 
-            // CONTROLLERS & OLM SECTION
             setCell(5, 0, "CONTROLLERS SYSTEM INSPECTION", { font: fontHeaderSec, alignment: { horizontal: "center", vertical: "center" } });
             setCell(5, 15, "", { fill: fillSeparator });
             setCell(5, 16, "PROFIBUS OLM FAULTS", { font: fontHeaderSec, alignment: { horizontal: "center", vertical: "center" } });
@@ -586,7 +594,6 @@
                 }
             }
 
-            // TABEL QMS CONTROLLER INSPECTION
             const qmsStartRow = 7 + maxRows + 2;
 
             setCell(qmsStartRow, 0, "QMS CONTROLLER INSPECTION", { font: fontHeaderSec, fill: fillQmsHeader, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
@@ -611,7 +618,6 @@
                 setCell(rQms, 4, ioStatus, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
             });
 
-            // TABEL OPS AND SERVER STATUS INSPECTION
             const opsStartRow = qmsStartRow + 2 + qmsUnits.length + 2;
 
             setCell(opsStartRow, 0, "OPS AND SERVER STATUS INSPECTION", { font: fontHeaderSec, fill: fillOpsHeader, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
@@ -630,7 +636,6 @@
                 setCell(rOps, 2, cpuLoad, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
             });
 
-            // TABEL ENVIRONMENT 6 ROOMS
             const envStartRow = opsStartRow + 2 + opsUnits.length + 2;
 
             setCell(envStartRow, 0, "RACK ROOM ENVIRONMENT INSPECTION (6 ROOMS)", { font: fontHeaderSec, fill: fillEnvHeader, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
@@ -652,7 +657,6 @@
                 setCell(rEnv, 3, cleanVal, { font: fontData, border: thinBorder, alignment: { horizontal: "left" } });
             });
 
-            // TABEL 6 UPS POWER SYSTEM & CABINET
             const upsStartRow = envStartRow + 2 + rackRooms.length + 2;
 
             setCell(upsStartRow, 0, "UPS POWER SYSTEM INSPECTION (6 UNITS) & CABINET CONDITION", { font: fontHeaderSec, fill: fillUpsHeader, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
@@ -684,7 +688,6 @@
             setCell(rCab, 0, "Cabinet Condition:", { font: fontDataBold });
             setCell(rCab, 1, document.getElementById("cabinet-status").value, { font: fontDataBold, alignment: { horizontal: "center" }, border: thinBorder });
 
-            // MERGES & COL WIDTHS
             ws['!merges'] = [
                 { s: { r: 0, c: 0 }, e: { r: 0, c: 17 } },
                 { s: { r: 1, c: 0 }, e: { r: 1, c: 17 } },
