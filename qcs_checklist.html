@@ -316,9 +316,37 @@
             cleaningBody.appendChild(tr);
         });
 
-        function saveData() {
-            alert("Data QCS & Profiler Checklist berhasil disimpan.");
+        // URL Web App dari Google Apps Script yang di-deploy
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx.../exec";
+
+function saveData() {
+    const opDate = getOperationalDate();
+    const formData = {};
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        if (input.id) {
+            formData[input.id] = input.type === 'checkbox' ? input.checked : input.value;
         }
+    });
+
+    const payload = {
+        saveDate: opDate,
+        timestamp: new Date().toISOString(),
+        data: formData
+    };
+
+    // 1. Simpan ke Firebase (Real-time Multi-device)
+    db.ref('qcs_checklist_active').set(payload);
+
+    // 2. Kirim ke Google Apps Script (Siap di-backup otomatis ke Drive jam 8 pagi)
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    }).then(() => {
+        alert("Data berhasil tersimpan! Laporan akan di-upload otomatis ke Google Drive setiap jam 8 pagi.");
+    });
+}
 
         // FUNGSI EXPORT EXCEL PENUH
         function exportData() {
