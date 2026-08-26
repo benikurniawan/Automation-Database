@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <!-- Section 1: Scanner Sensor Status -->
+        <!-- SECTION 1: SCANNER SENSOR STATUS -->
         <div class="glass-card p-6 rounded-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
@@ -85,6 +85,7 @@
                 </span>
             </div>
 
+            <!-- Tabel Sensor RL, C3, C2, C1, CO, SP, PD -->
             <div class="overflow-x-auto border border-slate-800 rounded-xl">
                 <table class="w-full text-left text-xs whitespace-nowrap">
                     <thead>
@@ -163,7 +164,7 @@
             </div>
         </div>
 
-        <!-- Section 2: Profiler -->
+        <!-- SECTION 2: PROFILER SYSTEM INSPECTION -->
         <div class="glass-card p-6 rounded-2xl space-y-4">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
                 <i class="fa-solid fa-sliders text-cyan-400"></i> 2. Profiler System Inspection
@@ -193,7 +194,7 @@
             </div>
         </div>
 
-        <!-- Section 3: Paper Production And Cleaning Sensor -->
+        <!-- SECTION 3: PAPER PRODUCTION AND CLEANING SENSOR -->
         <div class="glass-card p-6 rounded-2xl space-y-4">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
                 <i class="fa-solid fa-broom text-cyan-400"></i> 3. Paper Production And Cleaning Sensor
@@ -230,7 +231,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <script>
-        // URL Google Apps Script milik Anda untuk Auto-Upload ke Drive
+        // Paste URL Web App Google Apps Script milik Anda di sini
         const APPS_SCRIPT_URL = "URL_GOOGLE_APPS_SCRIPT_ANDA_DISINI";
 
         // Konfigurasi Firebase Realtime Database
@@ -243,11 +244,11 @@
           messagingSenderId: "886858648612",
           appId: "1:886858648612:web:53f4c8468ce72290271cb1",
           measurementId: "G-ZMTZVZ1E8Z"
-          };
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Hari operasional berganti setiap jam 08:00 Pagi
+        // Operasional berganti setiap jam 08:00 Pagi
         function getOperationalDate() {
             const now = new Date();
             if (now.getHours() < 8) now.setDate(now.getDate() - 1);
@@ -257,7 +258,7 @@
         const sensorList = ["Basis Weight", "Moisture", "Ash", "Thickness", "Coater Weight", "Top Orientation", "Bottom Orientation", "Formation", "Top Color", "Bottom Color", "Gloss", "Surface"];
         const scannerFrames = ["RL", "C3", "C2", "C1", "CO", "SP", "PD"];
 
-        // 1. Render Section 1: Scanner Sensors Table
+        // 1. Render Section 1: Scanner Sensors Table (Basis Weight -> Surface)
         const sensorBody = document.getElementById('scanner-sensors-body');
         sensorList.forEach(sensor => {
             const tr = document.createElement('tr');
@@ -324,7 +325,7 @@
             cleaningBody.appendChild(tr);
         });
 
-        // FUNGSI SIMPAN ONLINE (FIREBASE + GOOGLE DRIVE APPS SCRIPT)
+        // FUNGSI SIMPAN ONLINE (FIREBASE + GOOGLE DRIVE VIA APPS SCRIPT)
         function saveData() {
             const opDate = getOperationalDate();
             const formData = {};
@@ -340,10 +341,10 @@
                 data: formData
             };
 
-            // Simpan ke Firebase Database (Sinkronisasi Multi-Device)
+            // 1. Simpan Realtime ke Firebase
             db.ref('qcs_checklist_active').set(payload);
 
-            // Kirim ke Google Apps Script (Auto Backup Drive Jam 8 Pagi)
+            // 2. Kirim ke Google Apps Script (Auto Backup Drive Jam 8 Pagi)
             if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== "URL_GOOGLE_APPS_SCRIPT_ANDA_DISINI") {
                 fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
@@ -353,23 +354,21 @@
                 });
             }
 
-            alert(`Data berhasil tersimpan Online!\nPerubahan langsung muncul di HP/PC lain dan di-upload ke Drive jam 8 pagi.`);
+            alert("Data berhasil tersimpan Online!\nLaporan akan ter-upload otomatis ke Google Drive setiap jam 8 pagi.");
         }
 
-        // SINKRONISASI REALTIME & AUTO-RESET JAM 8 PAGI
+        // SINKRONISASI REALTIME & RESET OTOMATIS JAM 8 PAGI
         function listenToOnlineData() {
             const currentOpDate = getOperationalDate();
             db.ref('qcs_checklist_active').on('value', (snapshot) => {
                 const result = snapshot.val();
                 if (!result) return;
 
-                // Auto reset jika data berasal dari hari operasional sebelumnya
                 if (result.saveDate !== currentOpDate) {
                     resetFormInputs();
                     return;
                 }
 
-                // Sync data ke layar pengguna
                 if (result.data) {
                     Object.keys(result.data).forEach(id => {
                         const el = document.getElementById(id);
@@ -391,119 +390,114 @@
             });
         }
 
-        // FUNGSI EXPORT EXCEL (TETAP TERSEDIA DENGAN LENGKAP)
-        // FUNGSI EXPORT EXCEL RAPI & IDENTIK DENGAN AUTOMATION DAILY CHECKLIST
-function exportData() {
-    const dateStr = document.getElementById("qcs-date").value || getOperationalDate();
-    const shift = document.getElementById("qcs-shift").value;
-    const inspector = document.getElementById("qcs-inspector").value || "-";
+        // FUNGSI EXPORT EXCEL RAPI & IDENTIK DENGAN AUTOMATION CHECKLIST
+        function exportData() {
+            const dateStr = document.getElementById("qcs-date").value || getOperationalDate();
+            const shift = document.getElementById("qcs-shift").value;
+            const inspector = document.getElementById("qcs-inspector").value || "-";
 
-    const wb = XLSX.utils.book_new();
-    const wsData = [];
+            const wb = XLSX.utils.book_new();
+            const wsData = [];
 
-    // Header Judul Laporan
-    wsData.push(["EXPERT MANAGER MAINTENANCE DAILY SYSTEM"]);
-    wsData.push(["QCS & PROFILER DAILY CHECKLIST"]);
-    wsData.push([]);
+            wsData.push(["EXPERT MANAGER MAINTENANCE DAILY SYSTEM"]);
+            wsData.push(["QCS & PROFILER DAILY CHECKLIST"]);
+            wsData.push([]);
 
-    // Metadata Laporan
-    wsData.push(["Tanggal Inspeksi:", dateStr, "", "Shift:", shift, "", "Teknisi / Inspector:", inspector]);
-    wsData.push([]);
+            wsData.push(["Tanggal Inspeksi:", dateStr, "", "Shift:", shift, "", "Teknisi / Inspector:", inspector]);
+            wsData.push([]);
 
-    // ----------------------------------------------------
-    // SECTION 1: SCANNER SENSOR STATUS
-    // ----------------------------------------------------
-    wsData.push(["1. SCANNER SENSOR STATUS"]);
-    wsData.push(["Scanner Frame", "RL (SH/DH)", "C3 (SH/DH)", "C2 (SH/DH)", "C1 (SH/DH)", "CO (SH/DH)", "SP (SH/DH)", "PD (SH/DH)"]);
+            // SECTION 1: SCANNER SENSOR STATUS
+            wsData.push(["1. SCANNER SENSOR STATUS"]);
+            wsData.push(["Scanner Frame", "RL (SH/DH)", "C3 (SH/DH)", "C2 (SH/DH)", "C1 (SH/DH)", "CO (SH/DH)", "SP (SH/DH)", "PD (SH/DH)"]);
 
-    sensorList.forEach(sensor => {
-        const row = [sensor];
-        scannerFrames.forEach(frame => {
-            const idPrefix = `sensor-${sensor.replace(/\s+/g, '').toLowerCase()}-${frame.toLowerCase()}`;
-            const shVal = document.getElementById(`${idPrefix}-sh`)?.value || "";
-            const dhVal = document.getElementById(`${idPrefix}-dh`)?.value || "";
-            
-            if (shVal || dhVal) {
-                row.push(`${shVal || "-"} / ${dhVal || "-"}`);
-            } else {
-                row.push("-");
-            }
-        });
-        wsData.push(row);
-    });
+            sensorList.forEach(sensor => {
+                const row = [sensor];
+                scannerFrames.forEach(frame => {
+                    const idPrefix = `sensor-${sensor.replace(/\s+/g, '').toLowerCase()}-${frame.toLowerCase()}`;
+                    const shVal = document.getElementById(`${idPrefix}-sh`)?.value || "";
+                    const dhVal = document.getElementById(`${idPrefix}-dh`)?.value || "";
+                    
+                    if (shVal || dhVal) {
+                        row.push(`${shVal || "-"} / ${dhVal || "-"}`);
+                    } else {
+                        row.push("-");
+                    }
+                });
+                wsData.push(row);
+            });
 
-    // Mechanical & Utility Check
-    wsData.push([]);
-    wsData.push(["MECHANICAL & UTILITY CHECK"]);
-    wsData.push(["Item Check", "Nilai / Status"]);
-    wsData.push(["Main Air Pressure (Mpa)", document.getElementById("main-air-press")?.value || "-"]);
-    wsData.push(["Cooling Water Lvl / Tmp (°C)", document.getElementById("colg-wtr-lvl-tmp")?.value || "-"]);
-    wsData.push(["Power Supply", document.getElementById("power-supply-status")?.value || "-"]);
-    wsData.push(["Drive Motor (Inv)", document.getElementById("drive-motor-status")?.value || "-"]);
-    wsData.push(["Motor & Fan", document.getElementById("motor-fan-status")?.value || "-"]);
-    wsData.push(["Timing Belt", document.getElementById("timing-belt-status")?.value || "-"]);
-    wsData.push(["Shaft & Pulley", document.getElementById("shaft-pulley-status")?.value || "-"]);
-    wsData.push(["Air Blower", document.getElementById("air-blower-status")?.value || "-"]);
-    wsData.push(["Abnormal Note (Scanner)", document.getElementById("scanner-abnormal")?.value || "-"]);
-    wsData.push([]);
+            wsData.push([]);
+            wsData.push(["MECHANICAL & UTILITY CHECK"]);
+            wsData.push(["Item Check", "Nilai / Status"]);
+            wsData.push(["Main Air Pressure (Mpa)", document.getElementById("main-air-press")?.value || "-"]);
+            wsData.push(["Cooling Water Lvl / Tmp (°C)", document.getElementById("colg-wtr-lvl-tmp")?.value || "-"]);
+            wsData.push(["Power Supply", document.getElementById("power-supply-status")?.value || "-"]);
+            wsData.push(["Drive Motor (Inv)", document.getElementById("drive-motor-status")?.value || "-"]);
+            wsData.push(["Motor & Fan", document.getElementById("motor-fan-status")?.value || "-"]);
+            wsData.push(["Timing Belt", document.getElementById("timing-belt-status")?.value || "-"]);
+            wsData.push(["Shaft & Pulley", document.getElementById("shaft-pulley-status")?.value || "-"]);
+            wsData.push(["Air Blower", document.getElementById("air-blower-status")?.value || "-"]);
+            wsData.push(["Abnormal Note (Scanner)", document.getElementById("scanner-abnormal")?.value || "-"]);
+            wsData.push([]);
 
-    // ----------------------------------------------------
-    // SECTION 2: PROFILER SYSTEM INSPECTION
-    // ----------------------------------------------------
-    wsData.push(["2. PROFILER SYSTEM INSPECTION"]);
-    wsData.push(["Parameter", "C.Weight 1", "C.Weight 2", "C.Weight 3", "C.Weight 4", "Steam Box 1", "Steam Box 2", "IQ Dilution"]);
+            // SECTION 2: PROFILER SYSTEM INSPECTION
+            wsData.push(["2. PROFILER SYSTEM INSPECTION"]);
+            wsData.push(["Parameter", "C.Weight 1", "C.Weight 2", "C.Weight 3", "C.Weight 4", "Steam Box 1", "Steam Box 2", "IQ Dilution"]);
 
-    profilerParams.forEach((param, pIdx) => {
-        const row = [param.label];
-        for (let i = 1; i <= 7; i++) {
-            const val = document.getElementById(`prof-row${pIdx}-col${i}`)?.value || "-";
-            row.push(val);
+            profilerParams.forEach((param, pIdx) => {
+                const row = [param.label];
+                for (let i = 1; i <= 7; i++) {
+                    const val = document.getElementById(`prof-row${pIdx}-col${i}`)?.value || "-";
+                    row.push(val);
+                }
+                wsData.push(row);
+            });
+            wsData.push(["Abnormal Note (Profiler)", document.getElementById("profiler-abnormal")?.value || "-"]);
+            wsData.push([]);
+
+            // SECTION 3: PAPER PRODUCTION AND CLEANING SENSOR
+            wsData.push(["3. PAPER PRODUCTION AND CLEANING SENSOR"]);
+            wsData.push(["Time", "Paper Grade (gsm)", "RL", "C3", "C2", "C1", "CO", "SP", "PD", "Cleaning By"]);
+
+            defaultTimes.forEach((time, index) => {
+                const timeVal = document.getElementById(`clean-time-${index}`)?.value || time;
+                const gsmVal = document.getElementById(`clean-gsm-${index}`)?.value || "-";
+                const cleanBy = document.getElementById(`clean-by-${index}`)?.value || "-";
+                
+                const row = [timeVal, gsmVal];
+                scannerFrames.forEach(frame => {
+                    const chk = document.getElementById(`clean-chk-${index}-${frame.toLowerCase()}`)?.checked;
+                    row.push(chk ? "CLEAN" : "-");
+                });
+                row.push(cleanBy);
+                wsData.push(row);
+            });
+            wsData.push(["Abnormal Note (Cleaning)", document.getElementById("cleaning-abnormal")?.value || "-"]);
+
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+            // Pengaturan Lebar Kolom
+            ws['!cols'] = [
+                { wch: 28 },
+                { wch: 18 },
+                { wch: 18 },
+                { wch: 18 },
+                { wch: 18 },
+                { wch: 18 },
+                { wch: 18 },
+                { wch: 18 },
+                { wch: 18 },
+                { wch: 20 }
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws, "QCS_Checklist");
+            XLSX.writeFile(wb, `QCS_Checklist_${dateStr}.xlsx`);
         }
-        wsData.push(row);
-    });
-    wsData.push(["Abnormal Note (Profiler)", document.getElementById("profiler-abnormal")?.value || "-"]);
-    wsData.push([]);
 
-    // ----------------------------------------------------
-    // SECTION 3: PAPER PRODUCTION & CLEANING SENSOR
-    // ----------------------------------------------------
-    wsData.push(["3. PAPER PRODUCTION AND CLEANING SENSOR"]);
-    wsData.push(["Time", "Paper Grade (gsm)", "RL", "C3", "C2", "C1", "CO", "SP", "PD", "Cleaning By"]);
-
-    defaultTimes.forEach((time, index) => {
-        const timeVal = document.getElementById(`clean-time-${index}`)?.value || time;
-        const gsmVal = document.getElementById(`clean-gsm-${index}`)?.value || "-";
-        const cleanBy = document.getElementById(`clean-by-${index}`)?.value || "-";
-        
-        const row = [timeVal, gsmVal];
-        scannerFrames.forEach(frame => {
-            const chk = document.getElementById(`clean-chk-${index}-${frame.toLowerCase()}`)?.checked;
-            row.push(chk ? "CLEAN" : "-");
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('qcs-date').valueAsDate = new Date();
+            listenToOnlineData();
         });
-        row.push(cleanBy);
-        wsData.push(row);
-    });
-    wsData.push(["Abnormal Note (Cleaning)", document.getElementById("cleaning-abnormal")?.value || "-"]);
-
-    // Convert ke Worksheet
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Pengaturan Lebar Kolom (Column Width) agar Tampilan Excel Rapi
-    ws['!cols'] = [
-        { wch: 28 }, // Kolom A (Nama Parameter)
-        { wch: 18 }, // Kolom B
-        { wch: 18 }, // Kolom C
-        { wch: 18 }, // Kolom D
-        { wch: 18 }, // Kolom E
-        { wch: 18 }, // Kolom F
-        { wch: 18 }, // Kolom G
-        { wch: 18 }, // Kolom H
-        { wch: 18 }, // Kolom I
-        { wch: 20 }  // Kolom J
-    ];
-
-    XLSX.utils.book_append_sheet(wb, ws, "QCS_Checklist");
-    XLSX.writeFile(wb, `QCS_Checklist_${dateStr}.xlsx`);
-}
+    </script>
 </body>
 </html>
