@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QCS & Profiler Daily Checklist</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+    .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .custom-input { background: #0f172a; border: 1px solid #334155; color: #f8fafc; transition: all 0.2s; }
+    .custom-input:focus { border-color: #06b6d4; outline: none; box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2); }
+    
+    .sticky-header-th {
+      position: sticky;
+      top: 0;
+      background-color: #1e293b;
+      z-index: 20;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <!-- Header App & Navigasi Dropdown -->
+    <header class="max-w-[95%] mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-6 rounded-2xl">
+        <div class="flex items-center gap-3">
+            <span class="p-3 bg-cyan-600/20 text-cyan-400 rounded-xl border border-cyan-500/30">
+                <i class="fa-solid fa-gauge-high text-2xl"></i>
+            </span>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-white">QCS & Profiler Daily Checklist</h1>
+                <p class="text-sm text-slate-400">Expert Manager Maintenance Daily System</p>
+            </div>
+        </div>
+
+        <!-- Tombol Aksi & Dropdown Navigasi Halaman -->
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Dropdown Pindah Halaman -->
+            <div class="relative flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
+                <i class="fa-solid fa-compass text-slate-400 pl-2"></i>
+                <select onchange="location = this.value;" class="bg-transparent text-sm font-semibold text-slate-200 focus:outline-none cursor-pointer pr-2">
+                    <option value="qcs_checklist.html" selected class="bg-slate-900 text-cyan-400">📄 QCS & Profiler Checklist</option>
+                    <option value="index.html" class="bg-slate-900 text-slate-200">🖥️ Automation Daily Checklist</option>
+                </select>
+            </div>
+
+            <button onclick="saveData()" class="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-medium transition flex items-center gap-2 shadow-lg shadow-cyan-600/20">
+                <i class="fa-solid fa-floppy-disk"></i> Simpan Data
+            </button>
+            <button onclick="exportData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-medium border border-slate-700 transition flex items-center gap-2">
+                <i class="fa-solid fa-file-export"></i> Export Excel
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-[95%] mx-auto space-y-6">
+        <!-- Form Metadata -->
+        <div class="glass-card p-6 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Tanggal Inspeksi</label>
+                <input type="date" id="qcs-date" class="w-full px-4 py-2.5 rounded-xl custom-input text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Shift</label>
+                <select id="qcs-shift" class="w-full px-4 py-2.5 rounded-xl custom-input text-sm">
+                    <option value="Shift 1">Shift 1</option>
+                    <option value="Shift 2">Shift 2</option>
+                    <option value="Shift 3">Shift 3</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Teknisi / Inspector</label>
+                <input type="text" id="qcs-inspector" placeholder="Nama Teknisi" class="w-full px-4 py-2.5 rounded-xl custom-input text-sm">
+            </div>
+        </div>
+
+        <!-- Section 1: Scanner Sensor Status -->
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-print text-cyan-400"></i> 1. Scanner Sensor Status
+                </h2>
+                <span class="text-xs text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Temp Alarm Limit: > 55°C
+                </span>
+            </div>
+
+            <div class="overflow-x-auto border border-slate-800 rounded-xl">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                    <thead>
+                        <tr class="text-slate-400 uppercase font-semibold text-center">
+                            <th class="py-3 px-3 text-left sticky-header-th">Scanner Frame</th>
+                            <th class="py-3 px-3 sticky-header-th">RL</th>
+                            <th class="py-3 px-3 sticky-header-th">C3</th>
+                            <th class="py-3 px-3 sticky-header-th">C2</th>
+                            <th class="py-3 px-3 sticky-header-th">C1</th>
+                            <th class="py-3 px-3 sticky-header-th">CO</th>
+                            <th class="py-3 px-3 sticky-header-th">SP</th>
+                            <th class="py-3 px-3 sticky-header-th">PD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scanner-sensors-body" class="divide-y divide-slate-800/50">
+                        <!-- Dynamic generated rows for Sensors -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Frame Mechanical & Utility Check Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-800/80">
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs text-slate-400 mb-1">Main Air Pressure (Mpa)</label>
+                    <input type="number" step="0.01" id="main-air-press" placeholder="0.5" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs text-slate-400 mb-1">Cooling Water Lvl / Tmp (°C)</label>
+                    <input type="text" id="colg-wtr-lvl-tmp" placeholder="30 ~ 35 °C" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs text-slate-400 mb-1">Power Supply</label>
+                    <select id="power-supply-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
+                        <option value="OK">OK</option>
+                        <option value="NOT OK">NOT OK</option>
+                    </select>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs text-slate-400 mb-1">Drive Motor (Inv)</label>
+                    <select id="drive-motor-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
+                        <option value="OK">OK (No Fault)</option>
+                        <option value="NOT OK">NOT OK</option>
+                    </select>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs text-slate-400 mb-1">Motor & Fan</label>
+                    <select id="motor-fan-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
+                        <option value="OK">OK (No Noise)</option>
+                        <option value="NOT OK">NOT OK</option>
+                    </select>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs text-slate-400 mb-1">Timing Belt</label>
+                    <select id="timing-belt-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
+                        <option value="OK">OK (No Crack)</option>
+                        <option value="NOT OK">NOT OK</option>
+                    </select>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs text-slate-400 mb-1">Shaft & Pulley</label>
+                    <select id="shaft-pulley-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
+                        <option value="OK">OK (No Noise)</option>
+                        <option value="NOT OK">NOT OK</option>
+                    </select>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <label class="block text-xs text-slate-400 mb-1">Air Blower</label>
+                    <select id="air-blower-status" class="w-full px-3 py-1.5 custom-input rounded-lg text-xs">
+                        <option value="OK">OK</option>
+                        <option value="NOT OK">NOT OK</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">**Abnormal Note (Scanner System)</label>
+                <textarea id="scanner-abnormal" rows="2" placeholder="Catatan kejanggalan / perbaikan..." class="w-full p-2.5 custom-input rounded-xl text-xs"></textarea>
+            </div>
+        </div>
+
+        <!-- Section 2: Profiler -->
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i class="fa-solid fa-sliders text-cyan-400"></i> 2. Profiler System Inspection
+            </h2>
+
+            <div class="overflow-x-auto border border-slate-800 rounded-xl">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                    <thead>
+                        <tr class="text-slate-400 uppercase font-semibold text-center">
+                            <th class="py-3 px-4 text-left sticky-header-th">Parameter</th>
+                            <th class="py-3 px-3 sticky-header-th">C.Weight 1</th>
+                            <th class="py-3 px-3 sticky-header-th">C.Weight 2</th>
+                            <th class="py-3 px-3 sticky-header-th">C.Weight 3</th>
+                            <th class="py-3 px-3 sticky-header-th">C.Weight 4</th>
+                            <th class="py-3 px-3 sticky-header-th">Steam Box 1</th>
+                            <th class="py-3 px-3 sticky-header-th">Steam Box 2</th>
+                            <th class="py-3 px-3 sticky-header-th">IQ Dilution</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/50">
+                        <tr>
+                            <td class="py-3 px-4 font-semibold text-cyan-400">Power Supply</td>
+                            <!-- 7 Units -->
+                            <script>
+                                for(let i=1; i<=7; i++) {
+                                    document.write(`<td class="py-2 px-2 text-center"><select id="prof-ps-${i}" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="NOT OK">NOT OK</option></select></td>`);
+                                }
+                            </script>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-semibold text-cyan-400">Air Pressure (Bar)</td>
+                            <script>
+                                for(let i=1; i<=7; i++) {
+                                    document.write(`<td class="py-2 px-2 text-center"><input type="number" step="0.1" id="prof-press-${i}" placeholder="Bar" class="custom-input px-2 py-1 rounded-lg text-xs w-20 text-center"></td>`);
+                                }
+                            </script>
+                        </tr>
+                        <tr>
+                            <td class="py-3 px-4 font-semibold text-cyan-400">Air Purging (Bar)</td>
+                            <script>
+                                for(let i=1; i<=7; i++) {
+                                    document.write(`<td class="py-2 px-2 text-center"><input type="number" step="0.1" id="prof-purge-${i}" placeholder="Bar" class="custom-input px-2 py-1 rounded-lg text-xs w-20 text-center"></td>`);
+                                }
+                            </script>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">**Abnormal Note (Profiler System)</label>
+                <textarea id="profiler-abnormal" rows="2" placeholder="Catatan kejanggalan profiler..." class="w-full p-2.5 custom-input rounded-xl text-xs"></textarea>
+            </div>
+        </div>
+
+        <!-- Section 3: Paper Production & Cleaning Sensor -->
+        <div class="glass-card p-6 rounded-2xl space-y-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i class="fa-solid fa-broom text-cyan-400"></i> 3. Paper Production And Cleaning Sensor
+            </h2>
+
+            <div class="overflow-x-auto border border-slate-800 rounded-xl">
+                <table class="w-full text-left text-xs whitespace-nowrap">
+                    <thead>
+                        <tr class="text-slate-400 uppercase font-semibold text-center">
+                            <th class="py-3 px-3 text-left sticky-header-th">Time</th>
+                            <th class="py-3 px-3 sticky-header-th">Paper Grade (gsm)</th>
+                            <th class="py-3 px-3 sticky-header-th">RL</th>
+                            <th class="py-3 px-3 sticky-header-th">C3</th>
+                            <th class="py-3 px-3 sticky-header-th">C2</th>
+                            <th class="py-3 px-3 sticky-header-th">C1</th>
+                            <th class="py-3 px-3 sticky-header-th">CO</th>
+                            <th class="py-3 px-3 sticky-header-th">SP</th>
+                            <th class="py-3 px-3 sticky-header-th">PD</th>
+                            <th class="py-3 px-3 text-left sticky-header-th">Cleaning By</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cleaning-sensor-body" class="divide-y divide-slate-800/50">
+                        <!-- Dynamic generated rows for Cleaning -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">**Abnormal Note (Cleaning & Production)</label>
+                <textarea id="cleaning-abnormal" rows="2" placeholder="Catatan pembersihan..." class="w-full p-2.5 custom-input rounded-xl text-xs"></textarea>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        document.getElementById('qcs-date').valueAsDate = new Date();
+
+        // Sensor Types List from PDF Sheet
+        const sensorList = [
+            "Basis Weight", "Moisture", "Ash", "Thickness", "Coater Weight", 
+            "Top Orientation", "Bottom Orientation", "Formation", 
+            "Top Color", "Bottom Color", "Gloss", "Surface"
+        ];
+
+        const scannerFrames = ["RL", "C3", "C2", "C1", "CO", "SP", "PD"];
+
+        // 1. Render Scanner Sensor Status Table
+        const sensorBody = document.getElementById('scanner-sensors-body');
+        sensorList.forEach(sensor => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-800/30 transition";
+            
+            let html = `<td class="py-2.5 px-3 font-semibold text-slate-200 text-left">${sensor}</td>`;
+            scannerFrames.forEach(frame => {
+                const idPrefix = `sensor-${sensor.replace(/\s+/g, '').toLowerCase()}-${frame.toLowerCase()}`;
+                html += `
+                    <td class="py-2 px-2">
+                        <div class="flex flex-col gap-1 items-center">
+                            <input type="number" placeholder="SH Temp" id="${idPrefix}-sh" class="custom-input px-1.5 py-0.5 rounded text-[11px] w-16 text-center">
+                            <input type="number" placeholder="DH Temp" id="${idPrefix}-dh" class="custom-input px-1.5 py-0.5 rounded text-[11px] w-16 text-center">
+                        </div>
+                    </td>
+                `;
+            });
+            tr.innerHTML = html;
+            sensorBody.appendChild(tr);
+        });
+
+        // 3. Render Cleaning Sensor Rows (3 Shifts / Timeslots)
+        const cleaningBody = document.getElementById('cleaning-sensor-body');
+        const defaultTimes = ["07:00", "15:00", "23:00"];
+        defaultTimes.forEach((time, index) => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-800/30 transition";
+            
+            let html = `
+                <td class="py-2 px-3"><input type="time" value="${time}" id="clean-time-${index}" class="custom-input px-2 py-1 rounded-lg text-xs"></td>
+                <td class="py-2 px-3 text-center"><input type="text" placeholder="gsm" id="clean-gsm-${index}" class="custom-input px-2 py-1 rounded-lg text-xs w-20 text-center"></td>
+            `;
+            
+            scannerFrames.forEach(frame => {
+                html += `
+                    <td class="py-2 px-2 text-center">
+                        <input type="checkbox" id="clean-chk-${index}-${frame.toLowerCase()}" class="w-4 h-4 accent-cyan-500 rounded cursor-pointer">
+                    </td>
+                `;
+            });
+
+            html += `<td class="py-2 px-3"><input type="text" placeholder="Nama Operator" id="clean-by-${index}" class="custom-input px-2 py-1 rounded-lg text-xs w-32"></td>`;
+            tr.innerHTML = html;
+            cleaningBody.appendChild(tr);
+        });
+
+        function saveData() {
+            alert("Data QCS & Profiler Checklist berhasil disimpan.");
+        }
+
+        function exportData() {
+            alert("Fitur Export Excel untuk QCS Checklist telah siap disesuaikan.");
+        }
+    </script>
+</body>
+</html>
