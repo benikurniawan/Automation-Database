@@ -392,56 +392,118 @@
         }
 
         // FUNGSI EXPORT EXCEL (TETAP TERSEDIA DENGAN LENGKAP)
-        function exportData() {
-            const dateStr = document.getElementById("qcs-date").value || getOperationalDate();
-            const shift = document.getElementById("qcs-shift").value;
-            const inspector = document.getElementById("qcs-inspector").value || "-";
+        // FUNGSI EXPORT EXCEL RAPI & IDENTIK DENGAN AUTOMATION DAILY CHECKLIST
+function exportData() {
+    const dateStr = document.getElementById("qcs-date").value || getOperationalDate();
+    const shift = document.getElementById("qcs-shift").value;
+    const inspector = document.getElementById("qcs-inspector").value || "-";
 
-            const wb = XLSX.utils.book_new();
-            const wsData = [
-                ["QCS & PROFILER MAINTENANCE DAILY CHECKLIST"],
-                ["Date:", dateStr, "Shift:", shift, "Inspector:", inspector],
-                []
-            ];
+    const wb = XLSX.utils.book_new();
+    const wsData = [];
 
-            // 1. Export Scanner Sensor Table
-            wsData.push(["--- 1. SCANNER SENSOR STATUS ---"]);
-            wsData.push(["Sensor Type", "RL SH/DH", "C3 SH/DH", "C2 SH/DH", "C1 SH/DH", "CO SH/DH", "SP SH/DH", "PD SH/DH"]);
+    // Header Judul Laporan
+    wsData.push(["EXPERT MANAGER MAINTENANCE DAILY SYSTEM"]);
+    wsData.push(["QCS & PROFILER DAILY CHECKLIST"]);
+    wsData.push([]);
 
-            sensorList.forEach(sensor => {
-                const row = [sensor];
-                scannerFrames.forEach(frame => {
-                    const idPrefix = `sensor-${sensor.replace(/\s+/g, '').toLowerCase()}-${frame.toLowerCase()}`;
-                    const shVal = document.getElementById(`${idPrefix}-sh`)?.value || "-";
-                    const dhVal = document.getElementById(`${idPrefix}-dh`)?.value || "-";
-                    row.push(`${shVal} / ${dhVal}`);
-                });
-                wsData.push(row);
-            });
+    // Metadata Laporan
+    wsData.push(["Tanggal Inspeksi:", dateStr, "", "Shift:", shift, "", "Teknisi / Inspector:", inspector]);
+    wsData.push([]);
 
-            // 2. Export Profiler Table
-            wsData.push([]);
-            wsData.push(["--- 2. PROFILER SYSTEM INSPECTION ---"]);
-            wsData.push(["Parameter", "C.Weight 1", "C.Weight 2", "C.Weight 3", "C.Weight 4", "Steam Box 1", "Steam Box 2", "IQ Dilution"]);
+    // ----------------------------------------------------
+    // SECTION 1: SCANNER SENSOR STATUS
+    // ----------------------------------------------------
+    wsData.push(["1. SCANNER SENSOR STATUS"]);
+    wsData.push(["Scanner Frame", "RL (SH/DH)", "C3 (SH/DH)", "C2 (SH/DH)", "C1 (SH/DH)", "CO (SH/DH)", "SP (SH/DH)", "PD (SH/DH)"]);
 
-            profilerParams.forEach((param, pIdx) => {
-                const row = [param.label];
-                for (let i = 1; i <= 7; i++) {
-                    const val = document.getElementById(`prof-row${pIdx}-col${i}`)?.value || "-";
-                    row.push(val);
-                }
-                wsData.push(row);
-            });
-
-            const ws = XLSX.utils.aoa_to_sheet(wsData);
-            XLSX.utils.book_append_sheet(wb, ws, "QCS Checklist");
-            XLSX.writeFile(wb, `QCS_Checklist_${dateStr}.xlsx`);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('qcs-date').valueAsDate = new Date();
-            listenToOnlineData();
+    sensorList.forEach(sensor => {
+        const row = [sensor];
+        scannerFrames.forEach(frame => {
+            const idPrefix = `sensor-${sensor.replace(/\s+/g, '').toLowerCase()}-${frame.toLowerCase()}`;
+            const shVal = document.getElementById(`${idPrefix}-sh`)?.value || "";
+            const dhVal = document.getElementById(`${idPrefix}-dh`)?.value || "";
+            
+            if (shVal || dhVal) {
+                row.push(`${shVal || "-"} / ${dhVal || "-"}`);
+            } else {
+                row.push("-");
+            }
         });
-    </script>
+        wsData.push(row);
+    });
+
+    // Mechanical & Utility Check
+    wsData.push([]);
+    wsData.push(["MECHANICAL & UTILITY CHECK"]);
+    wsData.push(["Item Check", "Nilai / Status"]);
+    wsData.push(["Main Air Pressure (Mpa)", document.getElementById("main-air-press")?.value || "-"]);
+    wsData.push(["Cooling Water Lvl / Tmp (°C)", document.getElementById("colg-wtr-lvl-tmp")?.value || "-"]);
+    wsData.push(["Power Supply", document.getElementById("power-supply-status")?.value || "-"]);
+    wsData.push(["Drive Motor (Inv)", document.getElementById("drive-motor-status")?.value || "-"]);
+    wsData.push(["Motor & Fan", document.getElementById("motor-fan-status")?.value || "-"]);
+    wsData.push(["Timing Belt", document.getElementById("timing-belt-status")?.value || "-"]);
+    wsData.push(["Shaft & Pulley", document.getElementById("shaft-pulley-status")?.value || "-"]);
+    wsData.push(["Air Blower", document.getElementById("air-blower-status")?.value || "-"]);
+    wsData.push(["Abnormal Note (Scanner)", document.getElementById("scanner-abnormal")?.value || "-"]);
+    wsData.push([]);
+
+    // ----------------------------------------------------
+    // SECTION 2: PROFILER SYSTEM INSPECTION
+    // ----------------------------------------------------
+    wsData.push(["2. PROFILER SYSTEM INSPECTION"]);
+    wsData.push(["Parameter", "C.Weight 1", "C.Weight 2", "C.Weight 3", "C.Weight 4", "Steam Box 1", "Steam Box 2", "IQ Dilution"]);
+
+    profilerParams.forEach((param, pIdx) => {
+        const row = [param.label];
+        for (let i = 1; i <= 7; i++) {
+            const val = document.getElementById(`prof-row${pIdx}-col${i}`)?.value || "-";
+            row.push(val);
+        }
+        wsData.push(row);
+    });
+    wsData.push(["Abnormal Note (Profiler)", document.getElementById("profiler-abnormal")?.value || "-"]);
+    wsData.push([]);
+
+    // ----------------------------------------------------
+    // SECTION 3: PAPER PRODUCTION & CLEANING SENSOR
+    // ----------------------------------------------------
+    wsData.push(["3. PAPER PRODUCTION AND CLEANING SENSOR"]);
+    wsData.push(["Time", "Paper Grade (gsm)", "RL", "C3", "C2", "C1", "CO", "SP", "PD", "Cleaning By"]);
+
+    defaultTimes.forEach((time, index) => {
+        const timeVal = document.getElementById(`clean-time-${index}`)?.value || time;
+        const gsmVal = document.getElementById(`clean-gsm-${index}`)?.value || "-";
+        const cleanBy = document.getElementById(`clean-by-${index}`)?.value || "-";
+        
+        const row = [timeVal, gsmVal];
+        scannerFrames.forEach(frame => {
+            const chk = document.getElementById(`clean-chk-${index}-${frame.toLowerCase()}`)?.checked;
+            row.push(chk ? "CLEAN" : "-");
+        });
+        row.push(cleanBy);
+        wsData.push(row);
+    });
+    wsData.push(["Abnormal Note (Cleaning)", document.getElementById("cleaning-abnormal")?.value || "-"]);
+
+    // Convert ke Worksheet
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Pengaturan Lebar Kolom (Column Width) agar Tampilan Excel Rapi
+    ws['!cols'] = [
+        { wch: 28 }, // Kolom A (Nama Parameter)
+        { wch: 18 }, // Kolom B
+        { wch: 18 }, // Kolom C
+        { wch: 18 }, // Kolom D
+        { wch: 18 }, // Kolom E
+        { wch: 18 }, // Kolom F
+        { wch: 18 }, // Kolom G
+        { wch: 18 }, // Kolom H
+        { wch: 18 }, // Kolom I
+        { wch: 20 }  // Kolom J
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, "QCS_Checklist");
+    XLSX.writeFile(wb, `QCS_Checklist_${dateStr}.xlsx`);
+}
 </body>
 </html>
