@@ -37,7 +37,6 @@
 
         <!-- Tombol Aksi & Dropdown Navigasi Halaman -->
         <div class="flex flex-wrap items-center gap-3">
-            <!-- Dropdown Pindah Halaman -->
             <div class="relative flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
                 <i class="fa-solid fa-compass text-slate-400 pl-2"></i>
                 <select onchange="location = this.value;" class="bg-transparent text-sm font-semibold text-slate-200 focus:outline-none cursor-pointer pr-2">
@@ -50,7 +49,7 @@
                 <i class="fa-solid fa-floppy-disk"></i> Simpan Data
             </button>
             <button onclick="exportData()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-medium border border-slate-700 transition flex items-center gap-2">
-                <i class="fa-solid fa-file-export"></i> Export Excel
+                <i class="fa-solid fa-file-export text-cyan-400"></i> Export Excel
             </button>
         </div>
     </header>
@@ -190,7 +189,6 @@
                     <tbody class="divide-y divide-slate-800/50">
                         <tr>
                             <td class="py-3 px-4 font-semibold text-cyan-400">Power Supply</td>
-                            <!-- 7 Units -->
                             <script>
                                 for(let i=1; i<=7; i++) {
                                     document.write(`<td class="py-2 px-2 text-center"><select id="prof-ps-${i}" class="custom-input px-2 py-1 rounded-lg text-xs"><option value="OK">OK</option><option value="NOT OK">NOT OK</option></select></td>`);
@@ -258,11 +256,11 @@
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Library Excel & Style Included -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script>
         document.getElementById('qcs-date').valueAsDate = new Date();
 
-        // Sensor Types List from PDF Sheet
         const sensorList = [
             "Basis Weight", "Moisture", "Ash", "Thickness", "Coater Weight", 
             "Top Orientation", "Bottom Orientation", "Formation", 
@@ -283,8 +281,8 @@
                 html += `
                     <td class="py-2 px-2">
                         <div class="flex flex-col gap-1 items-center">
-                            <input type="number" placeholder="SH Temp" id="${idPrefix}-sh" class="custom-input px-1.5 py-0.5 rounded text-[11px] w-16 text-center">
-                            <input type="number" placeholder="DH Temp" id="${idPrefix}-dh" class="custom-input px-1.5 py-0.5 rounded text-[11px] w-16 text-center">
+                            <input type="number" placeholder="SH" id="${idPrefix}-sh" class="custom-input px-1.5 py-0.5 rounded text-[11px] w-16 text-center">
+                            <input type="number" placeholder="DH" id="${idPrefix}-dh" class="custom-input px-1.5 py-0.5 rounded text-[11px] w-16 text-center">
                         </div>
                     </td>
                 `;
@@ -293,7 +291,7 @@
             sensorBody.appendChild(tr);
         });
 
-        // 3. Render Cleaning Sensor Rows (3 Shifts / Timeslots)
+        // 3. Render Cleaning Sensor Rows
         const cleaningBody = document.getElementById('cleaning-sensor-body');
         const defaultTimes = ["07:00", "15:00", "23:00"];
         defaultTimes.forEach((time, index) => {
@@ -322,8 +320,189 @@
             alert("Data QCS & Profiler Checklist berhasil disimpan.");
         }
 
+        // FUNGSI EXPORT EXCEL PENUH
         function exportData() {
-            alert("Fitur Export Excel untuk QCS Checklist telah siap disesuaikan.");
+            const dateStr = document.getElementById("qcs-date").value || new Date().toISOString().slice(0, 10);
+            const shift = document.getElementById("qcs-shift").value;
+            const inspector = document.getElementById("qcs-inspector").value || "-";
+
+            const wb = XLSX.utils.book_new();
+            const ws = {};
+
+            const setCell = (r, c, val, style = {}) => {
+                const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
+                ws[cellRef] = { v: val, t: typeof val === 'number' ? 'n' : 's', s: style };
+            };
+
+            // Formatting Styles
+            const fontTitle = { name: "Calibri", sz: 14, bold: true, color: { rgb: "FFFFFF" } };
+            const fontMeta = { name: "Calibri", sz: 10, bold: true, color: { rgb: "374151" } };
+            const fontHeaderSec = { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFF" } };
+            const fontHeaderNorm = { name: "Calibri", sz: 10, bold: true, color: { rgb: "1F2937" } };
+            const fontData = { name: "Calibri", sz: 10, color: { rgb: "111827" } };
+            const fontDataBold = { name: "Calibri", sz: 10, bold: true, color: { rgb: "111827" } };
+
+            const fillHeaderMain = { fgColor: { rgb: "0891B2" } }; // Cyan-600
+            const fillSubHeader = { fgColor: { rgb: "0E7490" } };  // Cyan-700
+            const fillTableHead = { fgColor: { rgb: "E0F2FE" } };  // Light Cyan
+            const thinBorder = {
+                top: { style: "thin", color: { rgb: "D1D5DB" } },
+                bottom: { style: "thin", color: { rgb: "D1D5DB" } },
+                left: { style: "thin", color: { rgb: "D1D5DB" } },
+                right: { style: "thin", color: { rgb: "D1D5DB" } }
+            };
+
+            // Title Block
+            setCell(0, 0, "QCS & PROFILER MAINTENANCE DAILY CHECKLIST", { font: fontTitle, alignment: { horizontal: "center", vertical: "center" }, fill: fillHeaderMain });
+            setCell(1, 0, "Expert Manager Maintenance Daily System", { font: { name: "Calibri", sz: 10, italic: true, color: { rgb: "FFFFFF" } }, alignment: { horizontal: "center", vertical: "center" }, fill: fillSubHeader });
+
+            // Meta Info
+            setCell(3, 0, "Date:", { font: fontMeta });
+            setCell(3, 1, dateStr, { font: fontData });
+            setCell(3, 3, "Shift:", { font: fontMeta });
+            setCell(3, 4, shift, { font: fontData });
+            setCell(3, 7, "Inspector:", { font: fontMeta });
+            setCell(3, 8, inspector, { font: fontData });
+
+            // Section 1: Scanner Sensors
+            setCell(5, 0, "1. SCANNER SENSOR STATUS (Temp Alarm Limit: > 55°C)", { font: fontHeaderSec, fill: fillHeaderMain, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
+            
+            // Scanner Header Row 1
+            setCell(6, 0, "Sensor Name", { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center", vertical: "center" } });
+            scannerFrames.forEach((frame, idx) => {
+                setCell(6, 1 + (idx * 2), frame, { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center", vertical: "center" } });
+                setCell(6, 2 + (idx * 2), "", { fill: fillTableHead, border: thinBorder });
+            });
+
+            // Scanner Header Row 2 (SH / DH)
+            setCell(7, 0, "", { fill: fillTableHead, border: thinBorder });
+            scannerFrames.forEach((_, idx) => {
+                setCell(7, 1 + (idx * 2), "SH Temp", { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center" } });
+                setCell(7, 2 + (idx * 2), "DH Temp", { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center" } });
+            });
+
+            // Scanner Data Rows
+            let currRow = 8;
+            sensorList.forEach(sensor => {
+                setCell(currRow, 0, sensor, { font: fontDataBold, border: thinBorder });
+                scannerFrames.forEach((frame, idx) => {
+                    const idPrefix = `sensor-${sensor.replace(/\s+/g, '').toLowerCase()}-${frame.toLowerCase()}`;
+                    const shVal = Number(document.getElementById(`${idPrefix}-sh`)?.value) || 0;
+                    const dhVal = Number(document.getElementById(`${idPrefix}-dh`)?.value) || 0;
+
+                    setCell(currRow, 1 + (idx * 2), shVal, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+                    setCell(currRow, 2 + (idx * 2), dhVal, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+                });
+                currRow++;
+            });
+
+            // Mechanical Utility Inputs
+            setCell(currRow + 1, 0, "Main Air Press (Mpa):", { font: fontDataBold });
+            setCell(currRow + 1, 1, Number(document.getElementById("main-air-press").value) || 0, { font: fontData, border: thinBorder });
+            setCell(currRow + 1, 3, "Cooling Water Lvl/Tmp:", { font: fontDataBold });
+            setCell(currRow + 1, 4, document.getElementById("colg-wtr-lvl-tmp").value || "-", { font: fontData, border: thinBorder });
+            setCell(currRow + 1, 6, "Power Supply:", { font: fontDataBold });
+            setCell(currRow + 1, 7, document.getElementById("power-supply-status").value, { font: fontData, border: thinBorder });
+            
+            setCell(currRow + 2, 0, "Drive Motor (Inv):", { font: fontDataBold });
+            setCell(currRow + 2, 1, document.getElementById("drive-motor-status").value, { font: fontData, border: thinBorder });
+            setCell(currRow + 2, 3, "Motor & Fan:", { font: fontDataBold });
+            setCell(currRow + 2, 4, document.getElementById("motor-fan-status").value, { font: fontData, border: thinBorder });
+            setCell(currRow + 2, 6, "Timing Belt:", { font: fontDataBold });
+            setCell(currRow + 2, 7, document.getElementById("timing-belt-status").value, { font: fontData, border: thinBorder });
+            
+            setCell(currRow + 3, 0, "Abnormal Note:", { font: fontDataBold });
+            setCell(currRow + 3, 1, document.getElementById("scanner-abnormal").value || "None", { font: fontData });
+
+            currRow += 5;
+
+            // Section 2: Profiler System
+            setCell(currRow, 0, "2. PROFILER SYSTEM INSPECTION", { font: fontHeaderSec, fill: fillHeaderMain, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
+            currRow++;
+
+            const profHeaders = ["Parameter", "C.Weight 1", "C.Weight 2", "C.Weight 3", "C.Weight 4", "Steam Box 1", "Steam Box 2", "IQ Dilution"];
+            profHeaders.forEach((h, colIdx) => {
+                setCell(currRow, colIdx, h, { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center" } });
+            });
+            currRow++;
+
+            // Power Supply Row
+            setCell(currRow, 0, "Power Supply", { font: fontDataBold, border: thinBorder });
+            for(let i=1; i<=7; i++) {
+                setCell(currRow, i, document.getElementById(`prof-ps-${i}`).value, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+            }
+            currRow++;
+
+            // Air Pressure Row
+            setCell(currRow, 0, "Air Pressure (Bar)", { font: fontDataBold, border: thinBorder });
+            for(let i=1; i<=7; i++) {
+                setCell(currRow, i, Number(document.getElementById(`prof-press-${i}`).value) || 0, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+            }
+            currRow++;
+
+            // Air Purging Row
+            setCell(currRow, 0, "Air Purging (Bar)", { font: fontDataBold, border: thinBorder });
+            for(let i=1; i<=7; i++) {
+                setCell(currRow, i, Number(document.getElementById(`prof-purge-${i}`).value) || 0, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+            }
+            currRow++;
+
+            setCell(currRow, 0, "Abnormal Note:", { font: fontDataBold });
+            setCell(currRow, 1, document.getElementById("profiler-abnormal").value || "None", { font: fontData });
+            currRow += 2;
+
+            // Section 3: Paper Production & Cleaning Sensor
+            setCell(currRow, 0, "3. PAPER PRODUCTION AND CLEANING SENSOR", { font: fontHeaderSec, fill: fillHeaderMain, alignment: { horizontal: "left", vertical: "center", indent: 1 } });
+            currRow++;
+
+            const cleanHeaders = ["Time", "Paper Grade (gsm)", "RL", "C3", "C2", "C1", "CO", "SP", "PD", "Cleaning By"];
+            cleanHeaders.forEach((h, colIdx) => {
+                setCell(currRow, colIdx, h, { font: fontHeaderNorm, fill: fillTableHead, border: thinBorder, alignment: { horizontal: "center" } });
+            });
+            currRow++;
+
+            defaultTimes.forEach((_, index) => {
+                const cTime = document.getElementById(`clean-time-${index}`).value;
+                const cGsm = document.getElementById(`clean-gsm-${index}`).value || "-";
+                const cBy = document.getElementById(`clean-by-${index}`).value || "-";
+
+                setCell(currRow, 0, cTime, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+                setCell(currRow, 1, cGsm, { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+
+                scannerFrames.forEach((frame, idx) => {
+                    const isChecked = document.getElementById(`clean-chk-${index}-${frame.toLowerCase()}`).checked;
+                    setCell(currRow, 2 + idx, isChecked ? "CLEANED" : "-", { font: fontData, border: thinBorder, alignment: { horizontal: "center" } });
+                });
+
+                setCell(currRow, 9, cBy, { font: fontData, border: thinBorder, alignment: { horizontal: "left" } });
+                currRow++;
+            });
+
+            setCell(currRow, 0, "Abnormal Note:", { font: fontDataBold });
+            setCell(currRow, 1, document.getElementById("cleaning-abnormal").value || "None", { font: fontData });
+
+            // Merges Configuration
+            ws['!merges'] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 14 } },
+                { s: { r: 1, c: 0 }, e: { r: 1, c: 14 } },
+                { s: { r: 5, c: 0 }, e: { r: 5, c: 14 } },
+                { s: { r: 6, c: 0 }, e: { r: 7, c: 0 } },
+            ];
+
+            // Add merges for Scanner Frame pairs
+            scannerFrames.forEach((_, idx) => {
+                ws['!merges'].push({ s: { r: 6, c: 1 + (idx * 2) }, e: { r: 6, c: 2 + (idx * 2) } });
+            });
+
+            ws['!cols'] = [
+                { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, 
+                { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 18 }
+            ];
+
+            ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: currRow + 2, c: 14 } });
+
+            XLSX.utils.book_append_sheet(wb, ws, "QCS Daily Checklist");
+            XLSX.writeFile(wb, `QCS_Checklist_${dateStr}.xlsx`);
         }
     </script>
 </body>
