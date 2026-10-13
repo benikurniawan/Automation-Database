@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Inventori Spare Part</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-800 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">🛠️ Spare Part Warehouse System</h1>
+            <span class="text-sm">Admin: Maintenance Dept</span>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Panel Input Barang (Masuk/Keluar) -->
+        <div class="bg-white p-6 rounded-lg shadow-md md:col-span-1">
+            <h2 class="text-lg font-semibold border-b pb-2 mb-4">Form Transaksi Barang</h2>
+            <form action="#" method="POST" class="space-y-4">
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">Jenis Transaksi</label>
+                    <select class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
+                        <option value="in">Barang Masuk (Inbound)</option>
+                        <option value="out">Barang Keluar (Outbound)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nama Spare Part / SKU</label>
+                    <input type="text" placeholder="Cari nama barang..." class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Ruang Penyimpanan (Lokasi)</label>
+                    <select class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
+                        <option>Gudang Utama - Rak Elektrik</option>
+                        <option>Gudang Utama - Rak Mekanik</option>
+                        <option>Ruang Server DCS</option>
+                        <option>Gudang Produksi</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Jumlah</label>
+                        <input type="number" min="1" class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Satuan</label>
+                        <select class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
+                            <option>Pcs</option>
+                            <option>Unit</option>
+                            <option>Set</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">Keterangan / Tujuan Penggunaan</label>
+                    <textarea placeholder="Contoh: Preventive Maintenance Mesin 1" class="w-full border p-2 rounded focus:ring focus:ring-blue-200 text-sm"></textarea>
+                </div>
+
+                <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
+                    Simpan Data
+                </button>
+            </form>
+        </div>
+
+        <!-- Panel Tabel Daftar Spare Part -->
+        <div class="bg-white p-6 rounded-lg shadow-md md:col-span-2">
+            <h2 class="text-lg font-semibold border-b pb-2 mb-4">Daftar Stok (Live Inventory)</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700 text-sm">
+                            <th class="p-3 border-b">Nama Barang</th>
+                            <th class="p-3 border-b">Lokasi Penyimpanan</th>
+                            <th class="p-3 border-b">Sisa Stok</th>
+                            <th class="p-3 border-b">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <!-- Baris 1 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b font-medium">Phoenix Contact Relay 24VDC</td>
+                            <td class="p-3 border-b text-gray-600">Gudang Utama - Rak Elektrik</td>
+                            <td class="p-3 border-b">15 Pcs</td>
+                            <td class="p-3 border-b"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Aman</span></td>
+                        </tr>
+                        <!-- Baris 2 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b font-medium">Valmet AI8H Card</td>
+                            <td class="p-3 border-b text-gray-600">Ruang Server DCS - Laci A</td>
+                            <td class="p-3 border-b">3 Unit</td>
+                            <td class="p-3 border-b"><span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">Minimum</span></td>
+                        </tr>
+                        <!-- Baris 3 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b font-medium">Control Valve 3132 HC 166</td>
+                            <td class="p-3 border-b text-gray-600">Gudang Produksi</td>
+                            <td class="p-3 border-b">0 Unit</td>
+                            <td class="p-3 border-b"><span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Kosong</span></td>
+                        </tr>
+                        <!-- Baris 4 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b font-medium">MOXA IMC-101 Media Converter</td>
+                            <td class="p-3 border-b text-gray-600">Gudang Utama - Rak Elektrik</td>
+                            <td class="p-3 border-b">8 Unit</td>
+                            <td class="p-3 border-b"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Aman</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
