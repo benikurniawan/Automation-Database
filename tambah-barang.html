@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Jenis Barang Baru - Automation Maintenance</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f4f6f9; padding-top: 30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .card { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: none; }
+    .card-header { background-color: #1b365d; color: white; border-top-left-radius: 12px !important; border-top-right-radius: 12px !important; }
+    .btn-custom { background-color: #1b365d; color: white; }
+    .btn-custom:hover { background-color: #132744; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container mb-5" style="max-width: 700px;">
+    
+    <!-- Tombol Navigasi ke Halaman Utama di Pojok Kanan Atas -->
+    <div class="d-flex justify-content-end mb-3">
+      <a href="index.html" class="btn btn-outline-secondary btn-sm fw-medium shadow-sm">&larr; Kembali ke Form Transaksi</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header text-center py-3">
+        <h4 class="mb-0">Tambah Jenis Barang Baru</h4>
+        <small class="text-light">Master List Stok - Automation Maintenance</small>
+      </div>
+      <div class="card-body p-4">
+        
+        <div id="alertBox"></div>
+
+        <form id="addMaterialForm" onsubmit="submitNewMaterial(event)">
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Full Name (Format Gabungan / Kolom A)</label>
+            <input type="text" class="form-control" id="fullName" placeholder="Contoh: Valmet; Digital Output; DO8P" required>
+            <small class="text-muted">Nama lengkap material yang biasa tampil di master list.</small>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Brand (Kolom B)</label>
+              <input type="text" class="form-control" id="brand" placeholder="Contoh: Valmet">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Material Name (Kolom C)</label>
+              <input type="text" class="form-control" id="materialNameType" placeholder="Contoh: Digital Output">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Type 1 (Kolom D)</label>
+              <input type="text" class="form-control" id="type1" placeholder="Contoh: DO8P">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Type 2 (Kolom E)</label>
+              <input type="text" class="form-control" id="type2" placeholder="Contoh: -">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Length (Kolom F)</label>
+              <input type="text" class="form-control" id="length" placeholder="Contoh: -">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Size (Kolom G)</label>
+              <input type="text" class="form-control" id="size" placeholder="Contoh: -">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Color (Kolom H)</label>
+              <input type="text" class="form-control" id="color" placeholder="Contoh: Black">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Model Number (Kolom I)</label>
+              <input type="text" class="form-control" id="modelNumber" placeholder="Contoh: D201129L">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Material Number (Kolom J)</label>
+            <input type="text" class="form-control" id="materialNumber" placeholder="Contoh: 20905238">
+          </div>
+
+          <button type="submit" id="btnSubmit" class="btn btn-custom w-100 py-2">Simpan Barang Baru</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WEB_APP_URL = "MASUKKAN_WEB_APP_URL_ANDA_DISINI";
+
+    function submitNewMaterial(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.innerText = "Menyimpan...";
+
+      var payload = {
+        action: "addMaterial",
+        fullName: document.getElementById('fullName').value,
+        brand: document.getElementById('brand').value,
+        materialNameType: document.getElementById('materialNameType').value,
+        type1: document.getElementById('type1').value,
+        type2: document.getElementById('type2').value,
+        length: document.getElementById('length').value,
+        size: document.getElementById('size').value,
+        color: document.getElementById('color').value,
+        modelNumber: document.getElementById('modelNumber').value,
+        materialNumber: document.getElementById('materialNumber').value
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(response => {
+        var alertBox = document.getElementById('alertBox');
+        if (response.success) {
+          alertBox.innerHTML = '<div class="alert alert-success">' + response.message + '</div>';
+          document.getElementById('addMaterialForm').reset();
+        } else {
+          alertBox.innerHTML = '<div class="alert alert-danger">Gagal: ' + response.message + '</div>';
+        }
+        btn.disabled = false;
+        btn.innerText = "Simpan Barang Baru";
+      })
+      .catch(error => {
+        var alertBox = document.getElementById('alertBox');
+        alertBox.innerHTML = '<div class="alert alert-danger">Terjadi kesalahan koneksi ke server.</div>';
+        btn.disabled = false;
+        btn.innerText = "Simpan Barang Baru";
+      });
+    }
+  </script>
+</body>
+</html>
