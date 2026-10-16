@@ -32,20 +32,14 @@
 
         <form id="addMaterialForm" onsubmit="submitNewMaterial(event)">
           
-          <div class="mb-3">
-            <label class="form-label fw-bold">Full Name (Format Gabungan / Kolom A)</label>
-            <input type="text" class="form-control" id="fullName" placeholder="Contoh: Valmet; Digital Output; DO8P" required>
-            <small class="text-muted">Nama lengkap material yang biasa tampil di master list.</small>
-          </div>
-
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label fw-bold">Brand (Kolom B)</label>
-              <input type="text" class="form-control" id="brand" placeholder="Contoh: Valmet">
+              <input type="text" class="form-control" id="brand" placeholder="Contoh: Valmet" required>
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label fw-bold">Material Name (Kolom C)</label>
-              <input type="text" class="form-control" id="materialNameType" placeholder="Contoh: Digital Output">
+              <input type="text" class="form-control" id="materialNameType" placeholder="Contoh: Digital Output" required>
             </div>
           </div>
 
@@ -95,6 +89,7 @@
   </div>
 
   <script>
+    // Masukkan URL Web App terbaru Anda di sini
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyHbOW9JQkrhmHrA74-ZkUbyasE1JTnQAcrLBtegB9761XfYXwp_i1V7FAeZKlpay73sw/exec";
 
     function submitNewMaterial(e) {
@@ -105,7 +100,6 @@
 
       var payload = {
         action: "addMaterial",
-        fullName: document.getElementById('fullName').value,
         brand: document.getElementById('brand').value,
         materialNameType: document.getElementById('materialNameType').value,
         type1: document.getElementById('type1').value,
